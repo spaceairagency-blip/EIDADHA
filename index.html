@@ -1902,6 +1902,36 @@ function copyToClipboard(text){
 function scrollToSection(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'});}
 function toggleMobileMenu(){document.getElementById('mobile-menu').classList.toggle('open');}
 function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+function initApp() {
+  loadAppState(); // Load saved data first
+  
+  initStars();
+  initMoon();
+  initLanterns();
+  initCountdown();
+  initPrayerGrid();
+  initDuas();
+  initDhikrList(); // This will now use the saved APP.currentDhikrIndex
+  initHajjTimeline();
+  initRecipes();
+  initWall();
+  initTrackList();
+  initAudioElement();
+  initQuiz();
+  initMoonPhase();
+  updateCardPreview();
+  setupKeyboardShortcuts();
+  setupCursor();
+  setupNavScroll();
+  
+  // Restore UI state based on saved data
+  updateNavUserArea();
+  updateTasbeehDisplay();
+  
+  if (APP.user || APP.isGuest) {
+    document.getElementById('google-login-overlay')?.classList.remove('open');
+  }
+}
 </script>
 </body>
 </html>
