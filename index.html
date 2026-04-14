@@ -1712,13 +1712,19 @@ function getWeather(){
 
 /* ========== AUDIO PLAYER — Real streaming ========== */
 // Free Islamic audio from Internet Archive (public domain / CC)
-const TRACKS=[
-  {name:'Eid Takbeer',artist:'Traditional Islamic',dur:'3:12',url:'https://ia800906.us.archive.org/9/items/TakbirAleid/TakbirAleid.mp3'},
-  {name:'Allahu Akbar (Takbeer)',artist:'Nasheed',dur:'4:05',url:'https://ia800801.us.archive.org/22/items/AllahuAkbar_201611/allahu-akbar.mp3'},
-  {name:'Labbayk Allahumma',artist:'Hajj Nasheed',dur:'3:47',url:'https://ia803103.us.archive.org/22/items/labbaik/labbaik.mp3'},
-  {name:'Ya Ilahi (Nasheed)',artist:'Islamic Vocal',dur:'4:22',url:'https://ia800304.us.archive.org/17/items/YaIlahiNasheed/ya-ilahi.mp3'},
-  {name:'Asmaul Husna',artist:'99 Names of Allah',dur:'6:30',url:'https://ia801403.us.archive.org/3/items/asmaul-husna-complete/asmaul-husna.mp3'},
-  {name:'Subhanallah Nasheed',artist:'Arabic Nasheed',dur:'3:55',url:'https://ia800403.us.archive.org/20/items/subhanallah-nasheed/subhanallah.mp3'},
+const TRACKS = [
+  {name:'Eid Takbeer — Makkah',artist:'Masjid al-Haram Recording',dur:'3:20',
+   url:'https://ia600201.us.archive.org/6/items/EidTakbeerMadina/eid%20takbeer%20madina.mp3'},
+  {name:'Eid Takbeer — Madinah 2015',artist:'Traditional Recording',dur:'4:10',
+   url:'https://ia803200.us.archive.org/8/items/makkah-eid-takbeeraat-2015_202009/Original-Eid-Takbir-In-Masjid-Al-Haram-Beautiful.mp3'},
+  {name:'Takbeer — Allahu Akbar Non-Stop',artist:'Traditional Islamic',dur:'6:00',
+   url:'https://ia803200.us.archive.org/8/items/makkah-eid-takbeeraat-2015_202009/Takbeer-ALLAHUAKBAR-ALLAHUAKBAR-non-stop.mp3'},
+  {name:'Eid ul Adha Takbeer — Madinah',artist:'Madinah Recording 2015',dur:'5:30',
+   url:'https://ia803200.us.archive.org/8/items/makkah-eid-takbeeraat-2015_202009/Eid-ul-Adha-Takbir-in-Madinah_2015_1436-AH.mp3'},
+  {name:'Takbeeratul Eid — Tashreeq',artist:'Traditional Islamic',dur:'4:45',
+   url:'https://ia803200.us.archive.org/8/items/makkah-eid-takbeeraat-2015_202009/Takbiratul-Eid-Takbeer-of-Tashreeq.mp3'},
+  {name:'Eid Takbeer — Makkah 1434',artist:'Masjid al-Haram 2013',dur:'7:20',
+   url:'https://ia803200.us.archive.org/8/items/makkah-eid-takbeeraat-2015_202009/Takbeer-in-Makkah-before-Eid-ul-Adha-1434_2013.mp3'},
 ];
 
 function initAudioElement(){
