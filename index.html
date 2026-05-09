@@ -1,428 +1,109 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eid Ul Adha Celebration</title>
+    <title>Eid Celebration</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            padding: 0;
-            margin: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow-x: hidden;
-        }
-
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            animation: slideDown 0.8s ease-out;
-        }
-
-        header h1 {
-            color: white;
-            font-size: 48px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            font-weight: 700;
-        }
-
-        .subtitle {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 18px;
-            font-weight: 300;
-            letter-spacing: 2px;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex: 1;
-            padding: 40px 20px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            animation: fadeIn 1.2s ease-out 0.3s both;
-        }
-
-        .start-btn {
-            padding: 16px 48px;
-            font-size: 18px;
-            font-weight: 600;
-            color: white;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .start-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(245, 87, 108, 0.6);
-        }
-
-        .start-btn:active {
-            transform: translateY(-1px);
-        }
-
-        .info-btn {
-            padding: 16px 48px;
-            font-size: 18px;
-            font-weight: 600;
-            color: white;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            backdrop-filter: blur(10px);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .info-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
-        }
-
-        .decorative-elements {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .star {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes twinkle {
-            0%, 100% {
-                opacity: 0.3;
-            }
-            50% {
-                opacity: 1;
-            }
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-        }
-
-        @media (max-width: 600px) {
-            header h1 {
-                font-size: 36px;
-            }
-
-            .subtitle {
-                font-size: 14px;
-            }
-
-            .button-group {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .start-btn,
-            .info-btn {
-                width: 100%;
-                max-width: 300px;
-            }
-        }
+        * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; overflow-x: hidden; }
+        header { text-align: center; padding: 40px 20px; animation: slideDown 0.8s ease-out; }
+        header h1 { color: white; font-size: 48px; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); font-weight: 700; }
+        .subtitle { color: rgba(255, 255, 255, 0.9); font-size: 18px; font-weight: 300; letter-spacing: 2px; }
+        .container { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 32px !important; flex: 1; padding: 40px 20px; }
+        .button-group { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; animation: fadeIn 1.2s ease-out 0.3s both; }
+        .start-btn { padding: 16px 48px; font-size: 18px; font-weight: 600; color: white; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4); text-transform: uppercase; letter-spacing: 1px; }
+        .start-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(245, 87, 108, 0.6); }
+        .start-btn:disabled { opacity: 0.35; cursor: not-allowed; filter: grayscale(0.4); }
+        .info-btn { padding: 16px 48px; font-size: 18px; font-weight: 600; color: white; background: rgba(255, 255, 255, 0.2); border: 2px solid white; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; backdrop-filter: blur(10px); text-transform: uppercase; letter-spacing: 1px; }
+        .countdown-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; animation: fadeIn 1s ease-out 0.5s both; width: 100%; }
+        .countdown-label { color: rgba(255,255,255,0.55); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; }
+        .countdown-boxes { display: flex; gap: 10px; justify-content: center; align-items: center; }
+        .cd-value { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(10px); border-radius: 14px; width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; color: #fff; position: relative; overflow: hidden; transition: 0.15s; }
+        .cd-value.tick { transform: scale(1.1); color: #ffd700; border-color: rgba(255,215,0,0.5); box-shadow: 0 0 24px rgba(255,215,0,0.3); }
+        .cd-unit { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); text-align: center; margin-top: 5px; }
+        .decorative-elements { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; overflow: hidden; z-index: -1; }
+        .star { position: absolute; width: 4px; height: 4px; background: white; border-radius: 50%; animation: twinkle 3s infinite; }
+        footer { text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.7); font-size: 14px; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
     <div class="decorative-elements" id="stars"></div>
-
     <header>
-        <h1>🌙 Eid Ul Adha 🌙</h1>
+        <h1>🌙 <span id="headerTitle">Loading...</span> 🌙</h1>
         <p class="subtitle">Celebration of Sacrifice & Joy</p>
     </header>
 
     <div class="container">
         <div class="button-group">
-            <button class="start-btn" onclick="startCelebration()">Start Celebration</button>
-            <button class="info-btn" onclick="alert('Eid Ul Adha is an Islamic festival celebrated by Muslims worldwide to commemorate Prophet Ibrahim\'s willingness to sacrifice his son in obedience to God. It\'s a time for prayer, family gatherings, and sharing with those in need.')">Learn More</button>
+            <button class="start-btn" id="startBtn" onclick="window.location.href='1.html'" disabled>Start Celebration</button>
+            <button class="info-btn" onclick="alert('Eid Ul Adha is a celebration of faith and sacrifice.')">Learn More</button>
+        </div>
+        <div class="countdown-wrap" id="countdownWrap">
+            <div class="countdown-label">Celebration begins in</div>
+            <div class="countdown-boxes">
+                <div class="cd-box"><div class="cd-value" id="days">00</div><div class="cd-unit">Days</div></div>
+                <div class="cd-box"><div class="cd-value" id="hours">00</div><div class="cd-unit">Hours</div></div>
+                <div class="cd-box"><div class="cd-value" id="mins">00</div><div class="cd-unit">Mins</div></div>
+                <div class="cd-box"><div class="cd-value" id="secs">00</div><div class="cd-unit">Secs</div></div>
+            </div>
         </div>
     </div>
-
-    <footer>
-        <p>Wishing you a blessed Eid filled with joy and happiness! 🎉</p>
-    </footer>
+    <footer><p>Wishing you a blessed Eid! 🎉</p></footer>
 
     <script>
-    // Generate twinkling stars
-    const starsContainer = document.getElementById('stars');
-    for (let i = 0; i < 50; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 100 + '%';
-        star.style.animationDelay = Math.random() * 3 + 's';
-        starsContainer.appendChild(star);
-    }
+        const SUPABASE_URL = 'https://gevhkmpynlwhxohvsszw.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldmhrbXB5bmx3aHhvaHZzc3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTc5OTcsImV4cCI6MjA5Mzg5Mzk5N30.leq6VvuNVYoj_f2V8Qpk-4a0HneIE9YuDpxUW9Pd0_E';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let targetDate = null;
 
-    // ── Eid date: 27 May 2026, 8:30 PM ──
-    const EID_DATE = new Date(2026, 4, 27, 20, 30, 0);
-
-    // ── Inject countdown styles ──
-    const style = document.createElement('style');
-    style.textContent = `
-        /* Fix container to stack vertically */
-        .container {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            gap: 32px !important;
+        // Generate stars
+        for (let i = 0; i < 50; i++) {
+            const s = document.createElement('div'); s.className = 'star';
+            s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 100 + '%';
+            document.getElementById('stars').appendChild(s);
         }
 
-        .button-group {
-            flex-direction: row !important;
-            flex-wrap: wrap;
+        async function init() {
+            const { data } = await _supabase.from('celebration_config').select('*').eq('id', 1).single();
+            if (data) syncUI(data);
+            _supabase.channel('custom-all-channel').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'celebration_config' }, (payload) => syncUI(payload.new)).subscribe();
         }
 
-        .countdown-wrap {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            animation: fadeIn 1s ease-out 0.5s both;
-            width: 100%;
-        }
-        .countdown-label {
-            color: rgba(255,255,255,0.55);
-            font-size: 12px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .countdown-boxes {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-        }
-        .cd-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }
-        .cd-value {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.18);
-            backdrop-filter: blur(10px);
-            border-radius: 14px;
-            width: 72px;
-            height: 72px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: 700;
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
-            transition: transform 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-        }
-        .cd-value::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 50%;
-            background: rgba(255,255,255,0.04);
-            border-radius: 14px 14px 0 0;
-        }
-        .cd-value.tick {
-            transform: scale(1.1);
-            color: #ffd700;
-            border-color: rgba(255,215,0,0.5);
-            box-shadow: 0 0 24px rgba(255,215,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
-        }
-        .cd-unit {
-            font-size: 10px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.4);
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .cd-separator {
-            font-size: 28px;
-            font-weight: 700;
-            color: rgba(255,255,255,0.3);
-            padding-bottom: 18px;
-            line-height: 1;
-        }
-        .eid-started-msg {
-            font-size: 16px;
-            letter-spacing: 2px;
-            color: #ffd700;
-            font-family: 'Segoe UI', sans-serif;
-            text-shadow: 0 0 20px rgba(255,215,0,0.6);
-            animation: pulseGold 1.5s ease-in-out infinite;
-        }
-        @keyframes pulseGold {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        .start-btn:disabled {
-            opacity: 0.35 !important;
-            cursor: not-allowed !important;
-            filter: grayscale(0.4);
-            box-shadow: none !important;
-            transform: none !important;
-        }
-        @media (max-width: 600px) {
-            .cd-value { width: 56px; height: 56px; font-size: 24px; border-radius: 10px; }
-            .cd-separator { font-size: 20px; }
-            .countdown-boxes { gap: 6px; }
-        }
-    `;
-    document.head.appendChild(style);
-
-    // ── Build countdown UI ──
-    const btn = document.querySelector('.start-btn');
-    const container = document.querySelector('.container');
-
-    const countdownWrap = document.createElement('div');
-    countdownWrap.className = 'countdown-wrap';
-    countdownWrap.innerHTML = `
-        <div class="countdown-label">Celebration begins in</div>
-        <div class="countdown-boxes">
-            <div class="cd-box">
-                <div class="cd-value" id="cd-days">00</div>
-                <div class="cd-unit">Days</div>
-            </div>
-            <div class="cd-separator">:</div>
-            <div class="cd-box">
-                <div class="cd-value" id="cd-hours">00</div>
-                <div class="cd-unit">Hours</div>
-            </div>
-            <div class="cd-separator">:</div>
-            <div class="cd-box">
-                <div class="cd-value" id="cd-mins">00</div>
-                <div class="cd-unit">Mins</div>
-            </div>
-            <div class="cd-separator">:</div>
-            <div class="cd-box">
-                <div class="cd-value" id="cd-secs">00</div>
-                <div class="cd-unit">Secs</div>
-            </div>
-        </div>
-    `;
-
-    // ── Append countdown INSIDE .container, AFTER .button-group ──
-    container.appendChild(countdownWrap);
-
-    const elDays  = document.getElementById('cd-days');
-    const elHours = document.getElementById('cd-hours');
-    const elMins  = document.getElementById('cd-mins');
-    const elSecs  = document.getElementById('cd-secs');
-
-    function pad(n) { return String(n).padStart(2, '0'); }
-
-    function flashTick(el) {
-        el.classList.add('tick');
-        setTimeout(() => el.classList.remove('tick'), 300);
-    }
-
-    let prevSecs = -1;
-
-    function updateState() {
-        const now  = new Date();
-        const diff = EID_DATE - now;
-
-        if (diff <= 0) {
-            btn.disabled = false;
-            countdownWrap.innerHTML = `<div class="eid-started-msg">🌙 Eid Mubarak! The celebration has begun! 🎉</div>`;
-            return;
+        function syncUI(data) {
+            targetDate = new Date(data.target_date);
+            document.getElementById('headerTitle').innerText = data.event_name;
         }
 
-        btn.disabled = true;
-
-        const days    = Math.floor(diff / 86400000);
-        const hours   = Math.floor((diff % 86400000) / 3600000);
-        const minutes = Math.floor((diff % 3600000)  / 60000);
-        const seconds = Math.floor((diff % 60000)    / 1000);
-
-        elDays.textContent  = pad(days);
-        elHours.textContent = pad(hours);
-        elMins.textContent  = pad(minutes);
-        elSecs.textContent  = pad(seconds);
-
-        if (seconds !== prevSecs) {
-            flashTick(elSecs);
-            if (seconds === 59) flashTick(elMins);
-            if (seconds === 59 && minutes === 59) flashTick(elHours);
-            prevSecs = seconds;
+        function flash(id) {
+            const el = document.getElementById(id);
+            el.classList.add('tick'); setTimeout(() => el.classList.remove('tick'), 300);
         }
-    }
 
-    updateState();
-    setInterval(updateState, 1000);
-
-    function startCelebration() {
-        if (new Date() < EID_DATE) return;
-        window.location.href = "1.html";
-    }
-</script>
+        let lastS = -1;
+        setInterval(() => {
+            if (!targetDate) return;
+            const diff = targetDate - new Date();
+            const btn = document.getElementById('startBtn');
+            if (diff <= 0) {
+                btn.disabled = false;
+                document.getElementById('countdownWrap').innerHTML = "<div style='color:#ffd700; font-weight:bold;'>🌙 Celebration Started! 🎉</div>";
+                return;
+            }
+            const s = Math.floor((diff % 60000) / 1000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            document.getElementById('days').innerText = Math.floor(diff / 86400000).toString().padStart(2, '0');
+            document.getElementById('hours').innerText = Math.floor((diff % 86400000) / 3600000).toString().padStart(2, '0');
+            document.getElementById('mins').innerText = m.toString().padStart(2, '0');
+            document.getElementById('secs').innerText = s.toString().padStart(2, '0');
+            if (s !== lastS) { flash('secs'); if(s === 59) flash('mins'); lastS = s; }
+        }, 1000);
+        init();
+    </script>
 </body>
 </html>
