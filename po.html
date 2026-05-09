@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eid Community Feed | __S__</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { 
+            background: #f0f2f5; /* Light social-media grey background */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Nav Header */
+        .feed-header {
+            width: 100%;
+            max-width: 680px;
+            margin-bottom: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* "What's on your mind" Box */
+        .composer-card {
+            width: 100%;
+            max-width: 680px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .composer-top {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #e4e6eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #65676b;
+            font-size: 20px;
+        }
+
+        .fake-input {
+            flex: 1;
+            background: #f0f2f5;
+            border-radius: 20px;
+            padding: 10px 16px;
+            color: #65676b;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .fake-input:hover { background: #e4e6eb; }
+
+        /* Modal / Real Input area (hidden until needed) */
+        #inputForm { display: none; flex-direction: column; gap: 12px; margin-top: 12px; }
+        .real-input {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .post-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* The Feed */
+        #feed {
+            width: 100%;
+            max-width: 680px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .post-author { font-weight: 700; color: #1c1e21; font-size: 15px; }
+        .post-time { color: #65676b; font-size: 12px; }
+
+        .post-content {
+            font-size: 15px;
+            color: #050505;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .post-footer {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f2f5;
+            display: flex;
+            color: #65676b;
+            font-size: 14px;
+            gap: 20px;
+        }
+
+        .post-footer div { cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .post-footer div:hover { color: #6366f1; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="feed-header">
+        <h2>Community Feed</h2>
+        <i class="fa-solid fa-bell"></i>
+    </div>
+
+    <div class="composer-card">
+        <div class="composer-top">
+            <div class="avatar"><i class="fa-solid fa-user"></i></div>
+            <input type="text" class="fake-input" placeholder="What's on your mind, Guest?" onclick="showForm()">
+        </div>
+        
+        <div id="inputForm">
+            <input type="text" id="userName" class="real-input" placeholder="Your Name...">
+            <textarea id="userMsg" class="real-input" placeholder="Write your Eid wish..." rows="3"></textarea>
+            <button class="post-btn" onclick="sendPost()">Post Wish</button>
+        </div>
+    </div>
+
+    <div id="feed">
+        </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gevhkmpynlwhxohvsszw.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldmhrbXB5bmx3aHhvaHZzc3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTc5OTcsImV4cCI6MjA5Mzg5Mzk5N30.leq6VvuNVYoj_f2V8Qpk-4a0HneIE9YuDpxUW9Pd0_E';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        function showForm() {
+            document.getElementById('inputForm').style.display = 'flex';
+        }
+
+        async function init() {
+            // Load existing
+            const { data } = await _supabase.from('eid_wishes').select('*').order('created_at', { ascending: false });
+            if(data) data.forEach(renderPost);
+
+            // Listen Live
+            _supabase.channel('feed-live').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'eid_wishes' }, payload => {
+                renderPost(payload.new, true);
+            }).subscribe();
+        }
+
+        async function sendPost() {
+            const name = document.getElementById('userName').value.trim();
+            const msg = document.getElementById('userMsg').value.trim();
+            if(!name || !msg) return alert("Please fill both fields!");
+
+            const { error } = await _supabase.from('eid_wishes').insert([{ name, message: msg }]);
+            if(!error) {
+                document.getElementById('userMsg').value = '';
+                document.getElementById('inputForm').style.display = 'none';
+            }
+        }
+
+        function renderPost(post, isNew = false) {
+            const feed = document.getElementById('feed');
+            const card = document.createElement('div');
+            card.className = 'post-card';
+            
+            const time = new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            card.innerHTML = `
+                <div class="post-header">
+                    <div class="avatar" style="width:32px; height:32px; font-size:14px;">${post.name[0].toUpperCase()}</div>
+                    <div>
+                        <div class="post-author">${post.name}</div>
+                        <div class="post-time">${time} • Public</div>
+                    </div>
+                </div>
+                <div class="post-content">${post.message}</div>
+                <div class="post-footer">
+                    <div><i class="fa-regular fa-heart"></i> Like</div>
+                    <div><i class="fa-regular fa-comment"></i> Wish Back</div>
+                </div>
+            `;
+
+            if(isNew) feed.prepend(card); else feed.appendChild(card);
+        }
+
+        init();
+    </script>
+</body>
+</html>
