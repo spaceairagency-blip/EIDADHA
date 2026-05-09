@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eid Ul Adha - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #f5c842;
+            --gold-light: #ffe98a;
+            --rose: #e8607a;
+            --teal: #00c9b8;
+            --deep: #1a0533;
+            --purple: #6b3fa0;
+        }
+
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(ellipse at 20% 20%, #2d1060 0%, #1a0533 40%, #0d1a3a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Crimson Pro', Georgia, serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── Starfield ── */
+        .starfield {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--dur, 3s) var(--delay, 0s) infinite ease-in-out;
+        }
+
+        /* ── Crescent moon ── */
+        .moon-wrap {
+            position: absolute;
+            top: 6vh;
+            right: 8vw;
+            z-index: 1;
+            animation: floatMoon 6s ease-in-out infinite;
+        }
+        .moon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: var(--gold-light);
+            box-shadow:
+                0 0 30px 10px rgba(245, 200, 66, 0.4),
+                0 0 80px 20px rgba(245, 200, 66, 0.15);
+            position: relative;
+        }
+        .moon::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 18px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at 30% 30%, #2d1060, #1a0533);
+        }
+
+        /* ── Decorative arches ── */
+        .arch-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 700px;
+            z-index: 1;
+            opacity: 0.18;
+        }
+        .arch {
+            width: 180px;
+            height: 280px;
+            border: 2px solid var(--gold);
+            border-radius: 90px 90px 0 0;
+            position: absolute;
+            bottom: 0;
+        }
+        .arch:nth-child(1) { left: 50%; transform: translateX(-50%); }
+        .arch:nth-child(2) { left: 50%; transform: translateX(-160%); width: 130px; height: 200px; border-radius: 65px 65px 0 0; }
+        .arch:nth-child(3) { left: 50%; transform: translateX(60%); width: 130px; height: 200px; border-radius: 65px 65px 0 0; }
+
+        /* ── Lanterns ── */
+        .lanterns {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 180px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .lantern {
+            position: absolute;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .lantern-string {
+            width: 1px;
+            background: rgba(245, 200, 66, 0.5);
+            height: var(--string-h, 60px);
+        }
+        .lantern-body {
+            width: 28px;
+            height: 42px;
+            border-radius: 6px;
+            background: var(--color, #e8607a);
+            box-shadow: 0 0 20px 6px var(--glow, rgba(232, 96, 122, 0.5));
+            animation: swayLantern var(--sway, 4s) ease-in-out infinite alternate;
+        }
+        .lantern-cap {
+            width: 36px;
+            height: 7px;
+            background: var(--gold);
+            border-radius: 3px;
+            margin-bottom: -2px;
+        }
+        .lantern-base {
+            width: 36px;
+            height: 7px;
+            background: var(--gold);
+            border-radius: 3px;
+            margin-top: -2px;
+        }
+        .lantern-tassel {
+            width: 2px;
+            height: 18px;
+            background: var(--color, #e8607a);
+            border-radius: 1px;
+        }
+
+        /* ── Main content ── */
+        .content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 0 20px;
+            animation: riseIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .arabic-text {
+            color: var(--gold);
+            font-size: clamp(28px, 6vw, 52px);
+            font-family: 'Cinzel Decorative', serif;
+            letter-spacing: 4px;
+            text-shadow: 0 0 30px rgba(245, 200, 66, 0.6);
+            margin-bottom: 8px;
+            animation: riseIn 1s ease-out 0.2s both;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            justify-content: center;
+            margin: 18px 0;
+            animation: riseIn 1s ease-out 0.4s both;
+        }
+        .divider-line {
+            height: 1px;
+            width: 80px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        .divider-diamond {
+            width: 8px;
+            height: 8px;
+            background: var(--gold);
+            transform: rotate(45deg);
+        }
+
+        h1 {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: clamp(36px, 8vw, 88px);
+            font-weight: 900;
+            color: transparent;
+            background: linear-gradient(135deg, #ffe98a 0%, #f5c842 35%, #ff9f7f 65%, #e8607a 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: none;
+            letter-spacing: 3px;
+            line-height: 1.1;
+            margin-bottom: 6px;
+            animation: riseIn 1s ease-out 0.3s both;
+            filter: drop-shadow(0 0 20px rgba(245, 200, 66, 0.3));
+        }
+
+        .subtitle {
+            font-family: 'Crimson Pro', serif;
+            font-size: clamp(16px, 3vw, 22px);
+            font-weight: 300;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 3px;
+            margin-bottom: 50px;
+            animation: riseIn 1s ease-out 0.5s both;
+        }
+
+        /* ── Button ── */
+        .btn-wrap {
+            animation: riseIn 1s ease-out 0.7s both;
+        }
+        .start-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 52px;
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 16px;
+            letter-spacing: 2px;
+            color: var(--deep);
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, #e6a800 100%);
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 0 0 2px rgba(245, 200, 66, 0.4),
+                0 8px 32px rgba(245, 200, 66, 0.35),
+                inset 0 1px 0 rgba(255,255,255,0.4);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            text-decoration: none;
+        }
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 60%);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+        .start-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow:
+                0 0 0 3px rgba(245, 200, 66, 0.6),
+                0 16px 48px rgba(245, 200, 66, 0.5),
+                inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+        .start-btn:active {
+            transform: translateY(-1px) scale(1.01);
+        }
+        .btn-icon {
+            font-size: 22px;
+        }
+
+        /* ── Learn more pill ── */
+        .learn-btn {
+            margin-top: 18px;
+            display: inline-block;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 30px;
+            padding: 10px 30px;
+            color: rgba(255,255,255,0.7);
+            font-family: 'Crimson Pro', serif;
+            font-size: 15px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: background 0.25s, color 0.25s;
+            animation: riseIn 1s ease-out 0.9s both;
+        }
+        .learn-btn:hover {
+            background: rgba(255,255,255,0.14);
+            color: white;
+        }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 3, 26, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal {
+            background: linear-gradient(145deg, #2d1060, #1a0533);
+            border: 1px solid rgba(245, 200, 66, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(245, 200, 66, 0.15), 0 40px 80px rgba(0,0,0,0.6);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        .modal h2 {
+            font-family: 'Cinzel Decorative', serif;
+            color: var(--gold);
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+        .modal p {
+            color: rgba(255,255,255,0.8);
+            font-size: 17px;
+            line-height: 1.8;
+            font-style: italic;
+        }
+        .modal-close {
+            margin-top: 28px;
+            display: inline-block;
+            padding: 10px 32px;
+            background: rgba(245, 200, 66, 0.15);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            color: var(--gold);
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .modal-close:hover { background: rgba(245, 200, 66, 0.3); }
+
+        /* ── Animations ── */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.4); }
+        }
+        @keyframes floatMoon {
+            0%, 100% { transform: translateY(0px) rotate(-5deg); }
+            50% { transform: translateY(-14px) rotate(5deg); }
+        }
+        @keyframes swayLantern {
+            from { transform: rotate(-8deg); }
+            to { transform: rotate(8deg); }
+        }
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Floating gold sparkles ── */
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 5;
+            font-size: 18px;
+            animation: sparkleFly var(--fly-dur, 8s) var(--fly-delay, 0s) linear infinite;
+            opacity: 0;
+        }
+        @keyframes sparkleFly {
+            0%   { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.9; }
+            90%  { opacity: 0.9; }
+            100% { transform: translateY(-20vh) translateX(var(--drift, 60px)) rotate(720deg); opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            h1 { letter-spacing: 1px; }
+            .arabic-text { letter-spacing: 2px; }
+            .start-btn { padding: 15px 36px; font-size: 14px; }
+            .moon { width: 60px; height: 60px; }
+            .moon::after { top: 6px; left: 12px; width: 48px; height: 48px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Starfield -->
+    <div class="starfield" id="starfield"></div>
+
+    <!-- Moon -->
+    <div class="moon-wrap">
+        <div class="moon"></div>
+    </div>
+
+    <!-- Lanterns row -->
+    <div class="lanterns" id="lanterns"></div>
+
+    <!-- Decorative arches -->
+    <div class="arch-container">
+        <div class="arch"></div>
+        <div class="arch"></div>
+        <div class="arch"></div>
+    </div>
+
+    <!-- Main content -->
+    <div class="content">
+        <div class="arabic-text">عيد أضحى مبارك</div>
+
+        <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-diamond"></div>
+            <div class="divider-line"></div>
+        </div>
+
+        <h1>Eid Ul Adha</h1>
+        <p class="subtitle">Celebration of Sacrifice &amp; Joy</p>
+
+        <div class="btn-wrap">
+            <button class="start-btn" onclick="startCelebration()">
+                <span class="btn-icon">🌙</span>
+                Generate Eid Cards
+                <span class="btn-icon">✨</span>
+            </button>
+        </div>
+
+        <br>
+        <button class="learn-btn" onclick="openModal()">Learn About Eid Ul Adha</button>
+    </div>
+
+    <!-- Info modal -->
+    <div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+        <div class="modal">
+            <h2>🌙 Eid Ul Adha</h2>
+            <p>
+                Eid Ul Adha is one of the holiest Islamic festivals, commemorating Prophet Ibrahim's unwavering faith and willingness to sacrifice his son in obedience to Allah. It marks the completion of Hajj pilgrimage and is a time of prayer, gratitude, charity, and joyful gatherings with loved ones.
+            </p>
+            <div class="modal-close" onclick="closeModal()">Close</div>
+        </div>
+    </div>
+
+    <script>
+        // ── Starfield ──
+        const sf = document.getElementById('starfield');
+        for (let i = 0; i < 120; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            const size = Math.random() * 3 + 1;
+            s.style.cssText = `
+                width:${size}px; height:${size}px;
+                left:${Math.random()*100}%;
+                top:${Math.random()*100}%;
+                --dur:${2 + Math.random()*4}s;
+                --delay:${Math.random()*4}s;
+            `;
+            sf.appendChild(s);
+        }
+
+        // ── Lanterns ──
+        const lanternData = [
+            { left: '8%',  color: '#e8607a', glow: 'rgba(232,96,122,0.6)',  sway: '3.5s', string: '50px' },
+            { left: '20%', color: '#00c9b8', glow: 'rgba(0,201,184,0.6)',   sway: '4.2s', string: '80px' },
+            { left: '35%', color: '#f5c842', glow: 'rgba(245,200,66,0.6)',  sway: '3.0s', string: '40px' },
+            { left: '65%', color: '#a78bfa', glow: 'rgba(167,139,250,0.6)', sway: '3.8s', string: '70px' },
+            { left: '80%', color: '#e8607a', glow: 'rgba(232,96,122,0.6)',  sway: '4.5s', string: '55px' },
+            { left: '92%', color: '#00c9b8', glow: 'rgba(0,201,184,0.6)',   sway: '3.2s', string: '35px' },
+        ];
+        const lanternContainer = document.getElementById('lanterns');
+        lanternData.forEach(d => {
+            lanternContainer.innerHTML += `
+                <div class="lantern" style="left:${d.left}">
+                    <div class="lantern-string" style="--string-h:${d.string}; height:${d.string}"></div>
+                    <div class="lantern-cap"></div>
+                    <div class="lantern-body" style="--color:${d.color}; --glow:${d.glow}; --sway:${d.sway}"></div>
+                    <div class="lantern-base"></div>
+                    <div class="lantern-tassel" style="--color:${d.color}"></div>
+                </div>`;
+        });
+
+        // ── Floating sparkles ──
+        const sparkleSymbols = ['✦','✧','⋆','★','☽','✨'];
+        for (let i = 0; i < 14; i++) {
+            const sp = document.createElement('div');
+            sp.className = 'sparkle';
+            sp.textContent = sparkleSymbols[Math.floor(Math.random()*sparkleSymbols.length)];
+            sp.style.cssText = `
+                left:${Math.random()*100}%;
+                --fly-dur:${7 + Math.random()*8}s;
+                --fly-delay:${Math.random()*8}s;
+                --drift:${(Math.random()-0.5)*120}px;
+                color:${['#f5c842','#ff9f7f','#a78bfa','#00c9b8','#ffe98a'][Math.floor(Math.random()*5)]};
+                font-size:${14 + Math.random()*14}px;
+            `;
+            document.body.appendChild(sp);
+        }
+
+        // ── Button action ──
+        function startCelebration() {
+            window.location.href = "https://eidsfitr.vercel.app";
+        }
+
+        // ── Modal ──
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+        function closeModalOutside(e) {
+            if (e.target === document.getElementById('modal')) closeModal();
+        }
+    </script>
+</body>
+</html>

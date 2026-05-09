@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eid Mubarak</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            text-align: center;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: 120px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #fff, #ffd700, #ff69b4, #fff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite, popIn 1s ease-out;
+            letter-spacing: 4px;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .emoji {
+            font-size: 80px;
+            animation: bounce 1.5s ease-in-out infinite;
+            display: block;
+            margin: 20px 0;
+        }
+
+        .emoji:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .emoji:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .subtitle {
+            color: white;
+            font-size: 28px;
+            margin-top: 30px;
+            animation: fadeInUp 1s ease-out 0.5s both;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) rotateY(-180deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotateY(0deg);
+            }
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-30px);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 60px;
+                letter-spacing: 2px;
+            }
+
+            .emoji {
+                font-size: 50px;
+            }
+
+            .subtitle {
+                font-size: 18px;
+                letter-spacing: 1px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <div class="emoji">🌙</div>
+        <h1>Eid Mubarak</h1>
+        <div class="emoji">🎉</div>
+        <p class="subtitle">Wishing you joy and blessings</p>
+    </div>
+    <audio autoplay >
+        <source src="Eid Takbeer - Allahu Akbar Kabira (1)_[cut_23sec].mp3" type="audio/mpeg">
+    </audio>
+    <script>
+        // Create twinkling stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Create confetti
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = ['#ffd700', '#ff69b4', '#00bcd4', '#fff'][Math.floor(Math.random() * 4)];
+                confetti.style.animation = `fall ${2 + Math.random() * 2}s linear`;
+                document.body.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+
+        // Create confetti on load and periodically
+        createConfetti();
+        setInterval(createConfetti, 1000);
+
+        // Voice countdown
+        
+        // Countdown with voice - starts immediately on page load
+        setTimeout(() => speakNumber(3), 300);
+        setTimeout(() => speakNumber(2), 1300);
+        setTimeout(() => speakNumber(1), 2300);
+
+        // Redirect after 24.0 seconds
+        setTimeout(function() {
+            window.location.href = "home.html";
+         }, 24000);
+    </script>
+</body>
+</html>
