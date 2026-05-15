@@ -12,7 +12,6 @@
         :root { --p: #6366f1; --s: #a855f7; --gold: #f59e0b; --bg: #0f172a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         
-        /* RESTORED BACKGROUND CSS */
         body { 
             background: var(--bg); 
             color: white; 
@@ -26,7 +25,6 @@
 
         .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px; }
 
-        /* HEADER */
         .glass-nav {
             background: rgba(255, 255, 255, 0.03); 
             backdrop-filter: blur(15px);
@@ -46,7 +44,6 @@
         .balance { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 18px; }
         .balance i { color: var(--gold); filter: drop-shadow(0 0 5px var(--gold)); }
 
-        /* POST CARDS */
         .post {
             background: rgba(255, 255, 255, 0.02); 
             border: 1px solid rgba(255,255,255,0.05);
@@ -61,41 +58,24 @@
             transform: translateY(-2px);
         }
         
-        .u-name { color: var(--p); font-weight: 800; font-size: 14px; margin-bottom: 10px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-        .u-msg { font-size: 16px; line-height: 1.6; color: #cbd5e1; word-break: break-word; }
+        .u-name { color: var(--p); font-weight: 800; font-size: 14px; margin-bottom: 10px; display: block; text-transform: uppercase; }
+        .u-msg { font-size: 16px; line-height: 1.6; color: #cbd5e1; word-break: break-word; text-align: left; }
         .u-meta { 
             margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05);
             display: flex; justify-content: space-between; font-size: 11px; color: #64748b; font-weight: 600;
         }
 
-        /* FAB */
         .fab {
-            position: fixed; 
-            bottom: 30px; 
-            left: 50%; 
-            transform: translateX(-50%);
-            width: calc(100% - 40px); 
-            max-width: 460px; 
-            background: white; 
-            color: var(--bg);
-            padding: 18px; 
-            border-radius: 22px; 
-            font-weight: 800; 
-            border: none; 
-            cursor: pointer; 
-            z-index: 100;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: calc(100% - 40px); max-width: 460px; background: white; color: var(--bg);
+            padding: 18px; border-radius: 22px; font-weight: 800; border: none; 
+            cursor: pointer; z-index: 100; box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
-        /* MODALS */
         .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.9); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .m-box { background: #1e293b; width: 100%; max-width: 400px; padding: 30px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
         input, textarea { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 16px; color: white; margin-bottom: 15px; outline: none; }
-        input:focus { border-color: var(--p); }
         .btn-p { width: 100%; background: linear-gradient(45deg, var(--p), var(--s)); color: white; padding: 16px; border-radius: 16px; font-weight: 800; border: none; cursor: pointer; }
     </style>
 </head>
@@ -130,11 +110,30 @@
 
     <script>
         const _s = supabase.createClient('https://gevhkmpynlwhxohvsszw.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldmhrbXB5bmx3aHhvaHZzc3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTc5OTcsImV4cCI6MjA5Mzg5Mzk5N30.leq6VvuNVYoj_f2V8Qpk-4a0HneIE9YuDpxUW9Pd0_E');
+        
         let balance = 10;
 
         function openM(id) { document.getElementById(id).style.display='flex'; }
         function closeM(id) { document.getElementById(id).style.display='none'; }
         function calc() { let c = Math.ceil(document.getElementById('inMsg').value.length / 20) * 5; document.getElementById('cLab').innerText = `Cost: ${c} Postbox`; return c; }
+
+        // SYNC BALANCE FROM DATABASE
+        async function syncBalance() {
+            let uID = localStorage.getItem('s_uid');
+            if(!uID) {
+                uID = 'u_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('s_uid', uID);
+            }
+
+            const { data: codes, error } = await _s.from('redemptions').select('redeem_codes(value)').eq('user_id', uID);
+            
+            if (!error && codes) {
+                const redeemedTotal = codes.reduce((sum, item) => sum + (item.redeem_codes?.value || 0), 0);
+                const spent = parseInt(localStorage.getItem('total_spent')) || 0;
+                balance = 10 + redeemedTotal - spent;
+                document.getElementById('balVal').innerText = balance;
+            }
+        }
 
         async function loadFeed() {
             const { data } = await _s.from('eid_wishes').select('*').order('created_at', {ascending:false});
@@ -152,19 +151,24 @@
 
         async function send() {
             const c = calc(), n = document.getElementById('inName').value, m = document.getElementById('inMsg').value;
-            if(!n || !m || balance < c) return;
-            balance -= c; 
+            if(!n || !m) return alert("Fill all fields");
+            if(balance < c) return alert("Insufficient Postbox!");
+
+            // Update Spent in LocalStorage
+            let totalSpent = (parseInt(localStorage.getItem('total_spent')) || 0) + c;
+            localStorage.setItem('total_spent', totalSpent);
+            
             await _s.from('eid_wishes').insert([{ name:n, message:m, cost_paid:c }]);
-            document.getElementById('balVal').innerText = balance;
+            
             closeM('postM'); 
+            syncBalance(); // Recalculate
             loadFeed();
         }
 
         async function claim() {
             const code = document.getElementById('codIn').value.trim().toUpperCase();
             const status = document.getElementById('rStat');
-            let uID = localStorage.getItem('s_uid') || 'u_'+Math.random().toString(36).substr(2,9);
-            localStorage.setItem('s_uid', uID);
+            let uID = localStorage.getItem('s_uid');
 
             const { data: cData } = await _s.from('redeem_codes').select('*').eq('code', code).maybeSingle();
             if(!cData) { status.innerText = "Invalid Code"; status.style.color = "#ef4444"; return; }
@@ -173,14 +177,17 @@
             if(used) { status.innerText = "Already Claimed"; status.style.color = "#f59e0b"; return; }
 
             await _s.from('redemptions').insert([{ user_id: uID, code_id: cData.id }]);
-            balance += cData.value; 
-            document.getElementById('balVal').innerText = balance;
             status.innerText = "Success!"; 
             status.style.color = "#10b981";
+            
+            syncBalance();
             setTimeout(() => closeM('redeemM'), 1000);
         }
 
-        window.onload = loadFeed;
+        window.onload = () => {
+            syncBalance();
+            loadFeed();
+        };
     </script>
 </body>
 </html>
