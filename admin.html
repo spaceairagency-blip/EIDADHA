@@ -8,141 +8,111 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #6366f1;
-            --bg: #f8fafc;
-            --sidebar: #ffffff;
-            --text-main: #1e293b;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); display: flex; min-height: 100vh; }
-
-        /* Navigation Sidebar */
+        :root { --primary: #6366f1; --bg: #f8fafc; --sidebar: #ffffff; --text: #1e293b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+        
         nav { width: 260px; background: var(--sidebar); border-right: 1px solid #e2e8f0; padding: 24px; display: flex; flex-direction: column; }
         .logo { font-weight: 800; font-size: 22px; color: var(--primary); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
-        .nav-item { padding: 12px 16px; border-radius: 12px; color: #64748b; text-decoration: none; margin-bottom: 8px; transition: 0.3s; cursor: pointer; }
+        .nav-item { padding: 12px 16px; border-radius: 12px; color: #64748b; cursor: pointer; margin-bottom: 8px; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
         .nav-item.active { background: #eef2ff; color: var(--primary); font-weight: 600; }
-        .nav-item:hover:not(.active) { background: #f1f5f9; }
-
-        /* Layout Main */
+        
         main { flex: 1; padding: 40px; overflow-y: auto; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .panel { background: white; padding: 30px; border-radius: 24px; border: 1px solid #e2e8f0; margin-bottom: 30px; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; margin-top: 8px; margin-bottom: 15px; outline: none; }
+        .btn-p { width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
         
-        /* Stats Widgets */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 32px; }
-        .stat-card { background: white; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: transform 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-card i { color: var(--primary); margin-bottom: 12px; font-size: 20px; }
-        .stat-val { font-size: 24px; font-weight: 700; }
-        .stat-label { font-size: 13px; color: #64748b; margin-top: 4px; }
-
-        .content-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 32px; }
-
-        /* Glass Form Panel */
-        .glass-panel { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; }
-        .field-group { margin-bottom: 20px; }
-        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #475569; }
-        input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 15px; outline: none; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: left; color: #94a3b8; font-size: 11px; padding: 10px; border-bottom: 2px solid #f1f5f9; }
+        td { padding: 15px 10px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .btn-del { color: #ef4444; background: #fee2e2; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
         
-        .update-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; }
-        .update-btn:hover { opacity: 0.9; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4); }
-
-        /* History & Logs */
-        .history-panel { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 24px; max-height: 500px; overflow-y: auto; }
-        .history-item { display: flex; gap: 12px; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
-        .h-icon { width: 36px; height: 36px; background: #f1f5f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
-        .h-info p { font-size: 14px; font-weight: 500; }
-        .h-info span { font-size: 11px; color: #94a3b8; }
-
-        /* Auth Screen */
         #authOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
-
     <div id="authOverlay">
-        <div class="glass-panel" style="width: 350px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+        <div class="panel" style="width: 350px; text-align: center;">
             <i class="fa-solid fa-user-shield" style="font-size: 40px; color: var(--primary); margin-bottom: 20px;"></i>
             <h2>__S__ Admin</h2>
-            <input type="password" id="adminPass" placeholder="Enter Password" style="margin: 20px 0; text-align: center;">
-            <button class="update-btn" onclick="checkAuth()">Login</button>
+            <input type="password" id="adminPass" placeholder="Enter Password" style="text-align: center;">
+            <button class="btn-p" onclick="checkAuth()">Login</button>
         </div>
     </div>
 
     <nav>
         <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> S-Panel</div>
-        <div class="nav-item active"><i class="fa-solid fa-house"></i> &nbsp; Dashboard</div>
-        <div class="nav-item"><i class="fa-solid fa-calendar"></i> &nbsp; Event Config</div>
-        <div class="nav-item"><i class="fa-solid fa-code"></i> &nbsp; API Settings</div>
-        <div style="margin-top: auto;" class="nav-item" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> &nbsp; Logout</div>
+        <div class="nav-item active" onclick="tab('dash', this)"><i class="fa-solid fa-house"></i> Dashboard</div>
+        <div class="nav-item" onclick="tab('event', this)"><i class="fa-solid fa-calendar"></i> Event Config</div>
+        <div class="nav-item" onclick="tab('codes', this)"><i class="fa-solid fa-ticket"></i> Promo Codes</div>
+        <div class="nav-item" onclick="tab('mod', this)"><i class="fa-solid fa-shield"></i> Moderation</div>
     </nav>
 
     <main>
-        <header>
-            <div>
-                <h1>Dashboard</h1>
-                <p style="color: #64748b; font-size: 14px;">Managing live celebration settings</p>
-            </div>
-            <div id="timer" style="font-weight: 700; color: var(--primary);"></div>
-        </header>
+        <div id="dash" class="tab-content">
+            <h1>Overview</h1>
+            <p style="color: #64748b; margin-top: 10px;">Welcome back, __S__.</p>
+        </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <i class="fa-solid fa-signal"></i>
-                <div class="stat-val" id="statStatus">Online</div>
-                <div class="stat-label">System Connectivity</div>
-            </div>
-            <div class="stat-card">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                <div class="stat-val" id="statChanges">0</div>
-                <div class="stat-label">Total Updates Today</div>
-            </div>
-            <div class="stat-card">
-                <i class="fa-solid fa-database"></i>
-                <div class="stat-val">Supabase</div>
-                <div class="stat-label">Database Backend</div>
+        <div id="event" class="tab-content" style="display:none;">
+            <h1>Event Configuration</h1>
+            <div class="panel" style="margin-top: 20px;">
+                <label>EVENT TITLE</label>
+                <input type="text" id="evName" placeholder="E.g. EID UL ADHA">
+                <label>TARGET DATE/TIME</label>
+                <input type="datetime-local" id="evDate">
+                <button class="btn-p" onclick="saveEvent()">Update Live Config</button>
+                <p id="evStat" style="text-align: center; margin-top: 10px; font-size: 13px;"></p>
             </div>
         </div>
 
-        <div class="content-grid">
-            <div class="glass-panel">
-                <h3 style="margin-bottom: 24px;">Edit Live Config</h3>
-                <div class="field-group">
-                    <label>EVENT TITLE</label>
-                    <input type="text" id="evName" placeholder="Loading current name...">
-                </div>
-                <div class="field-group">
-                    <label>TARGET DATE/TIME</label>
-                    <input type="datetime-local" id="evDate">
-                </div>
-                <button class="update-btn" id="saveBtn" onclick="saveChanges()">Update Production</button>
-                <p id="statusMsg" style="text-align: center; margin-top: 15px; font-size: 13px;"></p>
+        <div id="codes" class="tab-content" style="display:none;">
+            <h1>Promo Codes</h1>
+            <div class="panel" style="margin-top: 20px; display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="cCode" placeholder="CODE" style="margin:0">
+                <input type="number" id="cVal" placeholder="Value" style="margin:0">
+                <button class="btn-p" onclick="addCode()" style="width: 150px;">Create</button>
             </div>
+            <div class="panel">
+                <table>
+                    <thead><tr><th>Code</th><th>Value</th><th>Total Claims</th><th>Action</th></tr></thead>
+                    <tbody id="cBody"></tbody>
+                </table>
+            </div>
+        </div>
 
-            <div class="history-panel">
-                <h3 style="margin-bottom: 20px;">Change Logs</h3>
-                <div id="historyList"></div>
+        <div id="mod" class="tab-content" style="display:none;">
+            <h1>Moderation</h1>
+            <div class="panel" style="margin-top: 20px;">
+                <table>
+                    <thead><tr><th>User</th><th>Message</th><th>Action</th></tr></thead>
+                    <tbody id="pBody"></tbody>
+                </table>
             </div>
         </div>
     </main>
 
     <script>
-        const SUPABASE_URL = 'https://gevhkmpynlwhxohvsszw.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldmhrbXB5bmx3aHhvaHZzc3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTc5OTcsImV4cCI6MjA5Mzg5Mzk5N30.leq6VvuNVYoj_f2V8Qpk-4a0HneIE9YuDpxUW9Pd0_E';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const _s = supabase.createClient('https://gevhkmpynlwhxohvsszw.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldmhrbXB5bmx3aHhvaHZzc3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTc5OTcsImV4cCI6MjA5Mzg5Mzk5N30.leq6VvuNVYoj_f2V8Qpk-4a0HneIE9YuDpxUW9Pd0_E');
 
         function checkAuth() {
             if(document.getElementById('adminPass').value === "Eid@2026") {
                 document.getElementById('authOverlay').style.display = 'none';
-                loadData();
-                renderHistory();
-            } else { alert("Unauthorized access."); }
+                loadEvent();
+            }
         }
 
-        async function loadData() {
-            const { data } = await _supabase.from('celebration_config').select('*').eq('id', 1).single();
+        function tab(id, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display='none');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).style.display='block';
+            el.classList.add('active');
+            if(id === 'codes') loadCodes();
+            if(id === 'mod') loadPosts();
+        }
+
+        async function loadEvent() {
+            const { data } = await _s.from('celebration_config').select('*').eq('id', 1).single();
             if(data) {
                 document.getElementById('evName').value = data.event_name;
                 const d = new Date(data.target_date);
@@ -151,48 +121,26 @@
             }
         }
 
-        async function saveChanges() {
-            const btn = document.getElementById('saveBtn');
+        async function saveEvent() {
             const name = document.getElementById('evName').value;
             const date = document.getElementById('evDate').value;
-            const msg = document.getElementById('statusMsg');
-
-            btn.innerText = "Processing...";
-            const { error } = await _supabase.from('celebration_config').update({
-                event_name: name,
-                target_date: new Date(date).toISOString()
-            }).eq('id', 1);
-
-            if(!error) {
-                msg.style.color = "#10b981";
-                msg.innerText = "✓ Sync Complete";
-                addToHistory(name);
-            } else {
-                msg.style.color = "#ef4444";
-                msg.innerText = "Error: " + error.message;
-            }
-            btn.innerText = "Update Production";
+            const { error } = await _s.from('celebration_config').update({ event_name: name, target_date: new Date(date).toISOString() }).eq('id', 1);
+            document.getElementById('evStat').innerText = error ? "Error!" : "✓ Production Updated";
         }
 
-        function addToHistory(name) {
-            let logs = JSON.parse(localStorage.getItem('logs') || '[]');
-            logs.unshift({ name, time: new Date().toLocaleTimeString() });
-            localStorage.setItem('logs', JSON.stringify(logs.slice(0, 5)));
-            renderHistory();
+        async function loadCodes() {
+            const { data } = await _s.from('redeem_codes').select('*, redemptions(count)');
+            document.getElementById('cBody').innerHTML = data.map(c => `<tr><td><b>${c.code}</b></td><td>${c.value}</td><td>${c.redemptions[0].count}</td><td><button class="btn-del" onclick="delC(${c.id})">Delete</button></td></tr>`).join('');
         }
 
-        function renderHistory() {
-            const logs = JSON.parse(localStorage.getItem('logs') || '[]');
-            document.getElementById('statChanges').innerText = logs.length;
-            document.getElementById('historyList').innerHTML = logs.map(l => `
-                <div class="history-item">
-                    <div class="h-icon"><i class="fa-solid fa-clock"></i></div>
-                    <div class="h-info"><p>Modified: ${l.name}</p><span>At ${l.time}</span></div>
-                </div>
-            `).join('');
+        async function loadPosts() {
+            const { data } = await _s.from('eid_wishes').select('*').order('created_at',{descending:true});
+            document.getElementById('pBody').innerHTML = data.map(p => `<tr><td><b>${p.name}</b></td><td>${p.message}</td><td><button class="btn-del" onclick="delP(${p.id})">Remove</button></td></tr>`).join('');
         }
 
-        setInterval(() => { document.getElementById('timer').innerText = new Date().toLocaleTimeString(); }, 1000);
+        async function addCode() { await _s.from('redeem_codes').insert([{ code: document.getElementById('cCode').value.toUpperCase(), value: document.getElementById('cVal').value }]); loadCodes(); }
+        async function delP(id) { await _s.from('eid_wishes').delete().eq('id',id); loadPosts(); }
+        async function delC(id) { await _s.from('redeem_codes').delete().eq('id',id); loadCodes(); }
     </script>
 </body>
 </html>
