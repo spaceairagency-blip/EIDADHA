@@ -13,13 +13,21 @@
             --bg: #06080c;
             --card: #12161f;
             --border: #222936;
+            
+            /* Eid UI Theme Colors */
+            --eid-gradient: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
         }
 
         * { padding: 0; margin: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
         
         body { 
             background: var(--bg); color: #fff; min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center; padding: 24px; overflow-x: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; overflow-x: hidden;
+            transition: background 0.5s ease;
+        }
+
+        body.eid-theme {
+            background: var(--eid-gradient);
         }
 
         #gate {
@@ -36,12 +44,12 @@
             font-size: 18px; text-align: center; margin-bottom: 20px; outline: none;
         }
 
-        #main-content { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 360px; margin: 0 auto; }
+        #main-content { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 600px; margin: 0 auto; width: 100%; }
         .title-area { margin: 20px 0 30px; text-align: center; }
-        .title-area h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .title-area h1 { font-size: 24px; font-weight: 800; }
         .system-status { font-size: 11px; opacity: 0.4; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase; }
 
-        #interactive-zone { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 35px; }
+        #interactive-zone { width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; gap: 35px; }
 
         .draggable-card {
             width: 100%; height: 190px; background: linear-gradient(135deg, #1e2530 0%, #0c1017 100%);
@@ -62,31 +70,97 @@
         .vault-text { font-size: 13px; font-weight: 700; color: #8b949e; letter-spacing: 0.5px; }
         .vault-subtext { font-size: 11px; color: #6e7681; margin-top: 4px; }
 
-        #event-view { display: none; width: 100%; text-align: center; animation: fadeIn 0.5s ease; }
+        .btn { padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
+        .btn-main { width: 100%; background: var(--accent); color: #000; }
+
+        /* ==========================================================================
+           EID CELEBRATION LANDING UI STYLE DEFINITIONS
+           ========================================================================== */
+        #event-view { 
+            display: none; 
+            width: 100%; 
+            text-align: center; 
+            animation: fadeIn 0.8s ease forwards;
+        }
         
-        .success-card {
-            background: #0c1b15; border: 1px solid rgba(0, 255, 136, 0.15);
-            padding: 20px 40px 20px 20px; border-radius: 16px; color: var(--success); 
-            font-weight: 600; font-size: 14px; margin-bottom: 30px; position: relative; text-align: left;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        .eid-header { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; }
+        .eid-header h1 { font-size: 42px; font-weight: 800; letter-spacing: 0.5px; color: #ffffff; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .moon-icon { font-size: 36px; display: inline-block; }
+        .eid-sub { font-size: 15px; color: rgba(255, 255, 255, 0.7); margin-bottom: 40px; font-weight: 400; letter-spacing: 0.5px; }
+
+        .eid-actions-row {
+            display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 45px; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto;
         }
 
-        .close-alert-btn {
-            position: absolute; top: 50%; right: 15px; transform: translateY(-50%);
-            background: none; border: none; color: var(--success); font-size: 20px; cursor: pointer; opacity: 0.6; line-height: 1;
+        .btn-eid-celebrate {
+            display: none; /* Hidden completely until target countdown triggers open */
+            flex: 1; padding: 14px 28px; border-radius: 50px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border: none;
+            background: #ffffff; color: #4c1d95; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        .btn-eid-celebrate:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25); }
+
+        .btn-eid-learn {
+            flex: 1; padding: 14px 28px; border-radius: 50px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            border: 2px solid #ffffff; background: transparent; color: #ffffff; cursor: pointer; transition: all 0.3s ease;
+        }
+        .btn-eid-learn:hover { background: #ffffff; color: #4c1d95; }
+
+        /* Unlock Notice Status Text Heading Styling */
+        .countdown-heading { 
+            font-size: 16px; 
+            font-weight: 600; 
+            letter-spacing: 0.5px; 
+            color: rgba(255, 255, 255, 0.9); 
+            margin-bottom: 20px; 
         }
 
-        .timer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 35px; width: 100%; }
-        .timer-item { background: var(--card); padding: 16px 5px; border-radius: 16px; border: 1px solid var(--border); }
-        .t-val { font-size: 24px; font-weight: 800; color: var(--accent); }
-        .t-unit { font-size: 9px; opacity: 0.4; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px; }
+        .timer-grid-eid { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; width: 100%; }
+        .timer-item-eid { 
+            background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            width: 65px; height: 65px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .t-val-eid { font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.1; }
+        .t-unit-eid { font-size: 9px; color: rgba(255, 255, 255, 0.5); text-transform: uppercase; margin-top: 2px; font-weight: 600; }
+        .eid-footer { font-size: 13px; color: rgba(255, 255, 255, 0.6); font-weight: 500; margin-top: 20px; }
 
-        .btn { width: 100%; padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
-        .btn-main { background: var(--accent); color: #000; }
-        .btn-celebrate { background: linear-gradient(135deg, #00ff88, #00b4db); color: #010409; box-shadow: 0 12px 24px rgba(0, 255, 136, 0.15); }
-        .btn-celebrate:disabled { background: #1c212b; color: #484f58; cursor: not-allowed; border: 1px solid var(--border); box-shadow: none; }
+        /* ==========================================================================
+           LEARN MORE POPUP COMPONENT UI STYLES
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center; z-index: 3000; padding: 20px;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-card {
+            background: rgba(30, 20, 50, 0.4); border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            padding: 30px; border-radius: 24px; width: 100%; max-width: 440px; text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-overlay.open .modal-card { transform: scale(1); }
+
+        .modal-card h3 { font-size: 22px; font-weight: 800; margin-bottom: 18px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        
+        .modal-body { text-align: left; max-height: 300px; overflow-y: auto; padding-right: 5px; }
+        .modal-body h4 { font-size: 14px; color: var(--accent); margin-top: 14px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-body p { font-size: 13.5px; color: rgba(255, 255, 255, 0.85); line-height: 1.5; margin-bottom: 10px; }
+        
+        .btn-modal-close {
+            width: 100%; padding: 14px; border-radius: 50px; border: none; font-size: 13px; font-weight: 700; margin-top: 25px;
+            background: #ffffff; color: #4c1d95; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;
+        }
+        .btn-modal-close:hover { background: var(--accent); color: #000; }
+
+        .modal-body::-webkit-scrollbar { width: 4px; }
+        .modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+        .star-ambient { position: fixed; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.3; pointer-events: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -99,18 +173,18 @@
                 <input type="checkbox" id="humanCheck" onchange="document.getElementById('verifyBtn').disabled = !this.checked">
                 <span style="font-size: 14px; opacity: 0.6;">Verify Human Identity</span>
             </div>
-            <button class="btn btn-main" id="verifyBtn" onclick="verify()">Verify Identity</button>
+            <button class="btn btn-main" id="verifyBtn" onclick="verify()" disabled>Verify Identity</button>
             <p id="errorMsg" style="color:#f85149; font-size:12px; margin-top:15px; font-weight:600;"></p>
         </div>
     </div>
 
     <div id="main-content">
-        <div class="title-area">
-            <h1 id="eventTitle">Loading Portal...</h1>
-            <p class="system-status">Secure Connection Verified</p>
-        </div>
-
+        
         <div id="interactive-zone">
+            <div class="title-area">
+                <h1 style="font-size: 24px; font-weight: 800;">Secure Portal Activation</h1>
+                <p class="system-status">Connection Verified</p>
+            </div>
             <div class="draggable-card" id="bankCard">
                 <div class="chip"></div>
                 <p class="balance-label">Available Balance</p>
@@ -125,19 +199,45 @@
         </div>
 
         <div id="event-view">
-            <div class="success-card" id="successCard">
-                ✨ You successfully unlocked The Celebrator.
-                <button class="close-alert-btn" onclick="dismissAlert()">×</button>
-            </div>
-
-            <div class="timer-grid">
-                <div class="timer-item"><span class="t-val" id="d">00</span><span class="t-unit">Days</span></div>
-                <div class="timer-item"><span class="t-val" id="h">00</span><span class="t-unit">Hrs</span></div>
-                <div class="timer-item"><span class="t-val" id="m">00</span><span class="t-unit">Min</span></div>
-                <div class="timer-item"><span class="t-val" id="s">00</span><span class="t-unit">Sec</span></div>
+            <div class="eid-header">
+                <span class="moon-icon">🌙</span>
+                <h1 id="eventTitle">Eid Ul Adha</h1>
+                <span class="moon-icon">🌙</span>
             </div>
             
-            <button class="btn btn-celebrate" id="startBtn" disabled onclick="window.location.href='1.html'">Start Celebration</button>
+            <p class="eid-sub">Celebration of Sacrifice & Joy</p>
+
+            <div class="eid-actions-row">
+                <button class="btn-eid-celebrate" id="startBtn" onclick="window.location.href='1.html'">Start Celebration</button>
+                <button class="btn-eid-learn" onclick="openModal()">Learn More</button>
+            </div>
+
+            <p class="countdown-heading" id="countdownLabel">The celebration will unlock in</p>
+            
+            <div class="timer-grid-eid">
+                <div class="timer-item-eid"><span class="t-val-eid" id="d">00</span><span class="t-unit-eid">Days</span></div>
+                <div class="timer-item-eid"><span class="t-val-eid" id="h">00</span><span class="t-unit-eid">Hours</span></div>
+                <div class="timer-item-eid"><span class="t-val-eid" id="m">00</span><span class="t-unit-eid">Mins</span></div>
+                <div class="timer-item-eid"><span class="t-val-eid" id="s">00</span><span class="t-unit-eid">Secs</span></div>
+            </div>
+            
+            <p class="eid-footer">Wishing you a blessed Eid! 🎉</p>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="learnModal" onclick="closeModalOutside(event)">
+        <div class="modal-card">
+            <h3>What is Eid?</h3>
+            <div class="modal-body">
+                <p><b>Eid</b> is an Arabic term meaning "festivity" or "festival". It represents two major holy days observed by millions globally within the Islamic calendar system.</p>
+                
+                <h4>Eid Ul Adha</h4>
+                <p>This countdown is dedicated to Eid Ul Adha (the Festival of Sacrifice). It commemorates the profound devotion of Prophet Ibrahim and coincides with the completion of the holy Hajj pilgrimage.</p>
+                
+                <h4>Tradition & Culture</h4>
+                <p>Families celebrate by wearing fine clothes, sharing bountiful meals, distributing charity portions to the less fortunate, and exchanging well-wishes saying <i>"Eid Mubarak!"</i></p>
+            </div>
+            <button class="btn-modal-close" onclick="closeModal()">Close Panel</button>
         </div>
     </div>
 
@@ -151,15 +251,38 @@
         let target = null;
 
         window.onload = () => {
+            generateStars();
             if (wallet > 0 || isPaid) unlockUI();
             updateDisplay();
         };
+
+        function generateStars() {
+            for (let i = 0; i < 40; i++) {
+                const star = document.createElement('div');
+                star.className = 'star-ambient';
+                star.style.top = Math.random() * 100 + 'vh';
+                star.style.left = Math.random() * 100 + 'vw';
+                star.style.opacity = (Math.random() * 0.6 + 0.2).toString();
+                document.body.appendChild(star);
+            }
+        }
+
+        function openModal() {
+            document.getElementById('learnModal').classList.add('open');
+        }
+        function closeModal() {
+            document.getElementById('learnModal').classList.remove('open');
+        }
+        function closeModalOutside(e) {
+            if (e.target === document.getElementById('learnModal')) {
+                closeModal();
+            }
+        }
 
         async function verify() {
             const typedCode = document.getElementById('passInput').value.trim();
             const verifyBtn = document.getElementById('verifyBtn');
             const errorMsg = document.getElementById('errorMsg');
-            
             if(!typedCode) return;
 
             verifyBtn.disabled = true;
@@ -189,7 +312,7 @@
 
         function unlockUI() {
             document.getElementById('gate').style.display = 'none';
-            document.getElementById('main-content').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'block';
             fetchConfig();
             updateDisplay();
             setupDragAndDrop();
@@ -200,18 +323,12 @@
             if (balElement) balElement.innerText = wallet.toFixed(2);
             
             if (isPaid) {
+                document.body.classList.add('eid-theme');
                 const interactiveZone = document.getElementById('interactive-zone');
                 const eventView = document.getElementById('event-view');
                 if (interactiveZone) interactiveZone.style.display = 'none';
                 if (eventView) eventView.style.display = 'block';
             }
-        }
-
-        function dismissAlert() {
-            const card = document.getElementById('successCard');
-            card.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-            card.style.opacity = "0"; card.style.transform = "scale(0.95)";
-            setTimeout(() => card.style.display = 'none', 300);
         }
 
         async function fetchConfig() {
@@ -227,7 +344,6 @@
         function setupDragAndDrop() {
             const card = document.getElementById('bankCard');
             const vault = document.getElementById('dropVault');
-            
             let startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false;
 
             if (!card || !vault) return;
@@ -278,14 +394,12 @@
                     cardRect.right > vaultRect.left && cardRect.left < vaultRect.right) {
                     
                     if (wallet >= 2.00) {
-                        // INSTANT TRANSACTION EXECUTION — NO CONFIRMATION POPUPS
                         wallet -= 2.00;
                         isPaid = true;
                         localStorage.setItem("sp_bal", wallet);
                         localStorage.setItem("sp_unl", "1");
                         updateDisplay();
                     } else {
-                        // NO BALANCE — JUST REJECT AND SLIDE BACK INSTANTLY
                         resetCardPosition();
                     }
                 } else { resetCardPosition(); }
@@ -304,11 +418,23 @@
             if (!target || !isPaid) return;
             const diff = target - new Date();
             const btn = document.getElementById('startBtn');
+            const heading = document.getElementById('countdownLabel');
 
+            // Countdown is finished
             if (diff <= 0) {
-                if(btn) btn.disabled = false;
+                if (btn) btn.style.display = 'block'; // Make the start button visible
+                if (heading) heading.innerText = "The celebration has begun!"; // Update the status text
+
+                if(document.getElementById('d')) document.getElementById('d').innerText = "00";
+                if(document.getElementById('h')) document.getElementById('h').innerText = "00";
+                if(document.getElementById('m')) document.getElementById('m').innerText = "00";
+                if(document.getElementById('s')) document.getElementById('s').innerText = "00";
                 return;
             }
+
+            // Countdown running: ensure button stays hidden & updates tracking notice text
+            if (btn) btn.style.display = 'none';
+            if (heading) heading.innerText = "The celebration will unlock in";
 
             const dEl = document.getElementById('d');
             const hEl = document.getElementById('h');
