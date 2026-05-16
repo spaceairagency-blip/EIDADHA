@@ -3,107 +3,323 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eid Celebration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>S-PRO Premium Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; overflow-x: hidden; }
-        header { text-align: center; padding: 40px 20px; animation: slideDown 0.8s ease-out; }
-        header h1 { color: white; font-size: 48px; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); font-weight: 700; }
-        .subtitle { color: rgba(255, 255, 255, 0.9); font-size: 18px; font-weight: 300; letter-spacing: 2px; }
-        .container { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 32px !important; flex: 1; padding: 40px 20px; }
-        .button-group { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; animation: fadeIn 1.2s ease-out 0.3s both; }
-        .start-btn { padding: 16px 48px; font-size: 18px; font-weight: 600; color: white; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4); text-transform: uppercase; letter-spacing: 1px; }
-        .start-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(245, 87, 108, 0.6); }
-        .start-btn:disabled { opacity: 0.35; cursor: not-allowed; filter: grayscale(0.4); }
-        .info-btn { padding: 16px 48px; font-size: 18px; font-weight: 600; color: white; background: rgba(255, 255, 255, 0.2); border: 2px solid white; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; backdrop-filter: blur(10px); text-transform: uppercase; letter-spacing: 1px; }
-        .countdown-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; animation: fadeIn 1s ease-out 0.5s both; width: 100%; }
-        .countdown-label { color: rgba(255,255,255,0.55); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; }
-        .countdown-boxes { display: flex; gap: 10px; justify-content: center; align-items: center; }
-        .cd-value { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(10px); border-radius: 14px; width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; color: #fff; position: relative; overflow: hidden; transition: 0.15s; }
-        .cd-value.tick { transform: scale(1.1); color: #ffd700; border-color: rgba(255,215,0,0.5); box-shadow: 0 0 24px rgba(255,215,0,0.3); }
-        .cd-unit { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); text-align: center; margin-top: 5px; }
-        .decorative-elements { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; overflow: hidden; z-index: -1; }
-        .star { position: absolute; width: 4px; height: 4px; background: white; border-radius: 50%; animation: twinkle 3s infinite; }
-        footer { text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.7); font-size: 14px; }
-        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        :root {
+            --accent: #00f2ff;
+            --success: #00ff88;
+            --bg: #06080c;
+            --card: #12161f;
+            --border: #222936;
+        }
+
+        * { padding: 0; margin: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
+        
+        body { 
+            background: var(--bg); color: #fff; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; padding: 24px; overflow-x: hidden;
+        }
+
+        #gate {
+            position: fixed; inset: 0; background: var(--bg);
+            z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 30px;
+        }
+
+        .auth-card { width: 100%; max-width: 320px; text-align: center; }
+        .auth-card h2 { font-size: 24px; margin-bottom: 30px; font-weight: 800; }
+
+        input[type="password"] {
+            width: 100%; background: var(--card); border: 2px solid var(--border);
+            padding: 18px; border-radius: 16px; color: #fff;
+            font-size: 18px; text-align: center; margin-bottom: 20px; outline: none;
+        }
+
+        #main-content { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 360px; margin: 0 auto; }
+        .title-area { margin: 20px 0 30px; text-align: center; }
+        .title-area h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .system-status { font-size: 11px; opacity: 0.4; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase; }
+
+        #interactive-zone { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 35px; }
+
+        .draggable-card {
+            width: 100%; height: 190px; background: linear-gradient(135deg, #1e2530 0%, #0c1017 100%);
+            border-radius: 24px; padding: 25px; border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); cursor: grab; position: relative; z-index: 10; touch-action: none;
+        }
+        .draggable-card.dragging { cursor: grabbing; box-shadow: 0 25px 50px rgba(0, 242, 255, 0.2); transform: scale(1.01); }
+        .chip { width: 40px; height: 28px; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7); border-radius: 6px; margin-bottom: 25px; }
+        .balance-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.4; }
+        .balance-amt { font-size: 32px; font-weight: 700; margin-top: 4px; color: var(--accent); }
+
+        .drop-vault {
+            width: 100%; height: 110px; border: 2px dashed var(--border); border-radius: 24px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(18, 22, 31, 0.3); transition: 0.2s ease;
+        }
+        .drop-vault.hovered { border-color: var(--accent); background: rgba(0, 242, 255, 0.03); }
+        .vault-text { font-size: 13px; font-weight: 700; color: #8b949e; letter-spacing: 0.5px; }
+        .vault-subtext { font-size: 11px; color: #6e7681; margin-top: 4px; }
+
+        #event-view { display: none; width: 100%; text-align: center; animation: fadeIn 0.5s ease; }
+        
+        .success-card {
+            background: #0c1b15; border: 1px solid rgba(0, 255, 136, 0.15);
+            padding: 20px 40px 20px 20px; border-radius: 16px; color: var(--success); 
+            font-weight: 600; font-size: 14px; margin-bottom: 30px; position: relative; text-align: left;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-alert-btn {
+            position: absolute; top: 50%; right: 15px; transform: translateY(-50%);
+            background: none; border: none; color: var(--success); font-size: 20px; cursor: pointer; opacity: 0.6; line-height: 1;
+        }
+
+        .timer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 35px; width: 100%; }
+        .timer-item { background: var(--card); padding: 16px 5px; border-radius: 16px; border: 1px solid var(--border); }
+        .t-val { font-size: 24px; font-weight: 800; color: var(--accent); }
+        .t-unit { font-size: 9px; opacity: 0.4; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px; }
+
+        .btn { width: 100%; padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
+        .btn-main { background: var(--accent); color: #000; }
+        .btn-celebrate { background: linear-gradient(135deg, #00ff88, #00b4db); color: #010409; box-shadow: 0 12px 24px rgba(0, 255, 136, 0.15); }
+        .btn-celebrate:disabled { background: #1c212b; color: #484f58; cursor: not-allowed; border: 1px solid var(--border); box-shadow: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div class="decorative-elements" id="stars"></div>
-    <header>
-        <h1>🌙 <span id="headerTitle">Loading...</span> 🌙</h1>
-        <p class="subtitle">Celebration of Sacrifice & Joy</p>
-    </header>
 
-    <div class="container">
-        <div class="button-group">
-            <button class="start-btn" id="startBtn" onclick="window.location.href='1.html'" disabled>Start Celebration</button>
-            <button class="info-btn" onclick="alert('Eid Ul Adha is a celebration of faith and sacrifice.')">Learn More</button>
-        </div>
-        <div class="countdown-wrap" id="countdownWrap">
-            <div class="countdown-label">Celebration begins in</div>
-            <div class="countdown-boxes">
-                <div class="cd-box"><div class="cd-value" id="days">00</div><div class="cd-unit">Days</div></div>
-                <div class="cd-box"><div class="cd-value" id="hours">00</div><div class="cd-unit">Hours</div></div>
-                <div class="cd-box"><div class="cd-value" id="mins">00</div><div class="cd-unit">Mins</div></div>
-                <div class="cd-box"><div class="cd-value" id="secs">00</div><div class="cd-unit">Secs</div></div>
+    <div id="gate">
+        <div class="auth-card">
+            <h2>Portal Access</h2>
+            <input type="password" id="passInput" placeholder="Code from Card">
+            <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:30px;">
+                <input type="checkbox" id="humanCheck" onchange="document.getElementById('verifyBtn').disabled = !this.checked">
+                <span style="font-size: 14px; opacity: 0.6;">Verify Human Identity</span>
             </div>
+            <button class="btn btn-main" id="verifyBtn" onclick="verify()">Verify Identity</button>
+            <p id="errorMsg" style="color:#f85149; font-size:12px; margin-top:15px; font-weight:600;"></p>
         </div>
     </div>
-    <footer><p>Wishing you a blessed Eid! 🎉</p></footer>
+
+    <div id="main-content">
+        <div class="title-area">
+            <h1 id="eventTitle">Loading Portal...</h1>
+            <p class="system-status">Secure Connection Verified</p>
+        </div>
+
+        <div id="interactive-zone">
+            <div class="draggable-card" id="bankCard">
+                <div class="chip"></div>
+                <p class="balance-label">Available Balance</p>
+                <p class="balance-amt">$<span id="balVal">0.00</span></p>
+                <p style="position:absolute; bottom:25px; right:25px; font-size:11px; font-weight:800; opacity:0.15;">S-PRO BANK</p>
+            </div>
+
+            <div class="drop-vault" id="dropVault">
+                <p class="vault-text">DRAG CARD HERE TO SECURE ACCESS</p>
+                <p class="vault-subtext">Verification Hold: $2.00</p>
+            </div>
+        </div>
+
+        <div id="event-view">
+            <div class="success-card" id="successCard">
+                ✨ You successfully unlocked The Celebrator.
+                <button class="close-alert-btn" onclick="dismissAlert()">×</button>
+            </div>
+
+            <div class="timer-grid">
+                <div class="timer-item"><span class="t-val" id="d">00</span><span class="t-unit">Days</span></div>
+                <div class="timer-item"><span class="t-val" id="h">00</span><span class="t-unit">Hrs</span></div>
+                <div class="timer-item"><span class="t-val" id="m">00</span><span class="t-unit">Min</span></div>
+                <div class="timer-item"><span class="t-val" id="s">00</span><span class="t-unit">Sec</span></div>
+            </div>
+            
+            <button class="btn btn-celebrate" id="startBtn" disabled onclick="window.location.href='1.html'">Start Celebration</button>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://gevhkmpynlwhxohvsszw.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldmhrbXB5bmx3aHhvaHZzc3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTc5OTcsImV4cCI6MjA5Mzg5Mzk5N30.leq6VvuNVYoj_f2V8Qpk-4a0HneIE9YuDpxUW9Pd0_E';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let targetDate = null;
+        
+        let wallet = parseFloat(localStorage.getItem("sp_bal") || "0");
+        let isPaid = localStorage.getItem("sp_unl") === "1";
+        let target = null;
 
-        // Generate stars
-        for (let i = 0; i < 50; i++) {
-            const s = document.createElement('div'); s.className = 'star';
-            s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 100 + '%';
-            document.getElementById('stars').appendChild(s);
+        window.onload = () => {
+            if (wallet > 0 || isPaid) unlockUI();
+            updateDisplay();
+        };
+
+        async function verify() {
+            const typedCode = document.getElementById('passInput').value.trim();
+            const verifyBtn = document.getElementById('verifyBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if(!typedCode) return;
+
+            verifyBtn.disabled = true;
+            verifyBtn.innerText = "Checking Vault...";
+
+            try {
+                const { data, error } = await _supabase.rpc('verify_and_redeem_code', { input_code: typedCode });
+                if (error) throw error;
+                const result = data[0];
+                
+                if (result && result.is_valid) {
+                    wallet = parseFloat(result.code_value);
+                    localStorage.setItem("sp_bal", wallet);
+                    unlockUI();
+                } else {
+                    errorMsg.innerText = "CODE REJECTED OR ALREADY REDEEMED";
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerText = "Verify Identity";
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.innerText = "Network Error. Connection interrupted.";
+                verifyBtn.disabled = false;
+                verifyBtn.innerText = "Verify Identity";
+            }
         }
 
-        async function init() {
-            const { data } = await _supabase.from('celebration_config').select('*').eq('id', 1).single();
-            if (data) syncUI(data);
-            _supabase.channel('custom-all-channel').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'celebration_config' }, (payload) => syncUI(payload.new)).subscribe();
+        function unlockUI() {
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('main-content').style.display = 'flex';
+            fetchConfig();
+            updateDisplay();
+            setupDragAndDrop();
         }
 
-        function syncUI(data) {
-            targetDate = new Date(data.target_date);
-            document.getElementById('headerTitle').innerText = data.event_name;
+        function updateDisplay() {
+            const balElement = document.getElementById('balVal');
+            if (balElement) balElement.innerText = wallet.toFixed(2);
+            
+            if (isPaid) {
+                const interactiveZone = document.getElementById('interactive-zone');
+                const eventView = document.getElementById('event-view');
+                if (interactiveZone) interactiveZone.style.display = 'none';
+                if (eventView) eventView.style.display = 'block';
+            }
         }
 
-        function flash(id) {
-            const el = document.getElementById(id);
-            el.classList.add('tick'); setTimeout(() => el.classList.remove('tick'), 300);
+        function dismissAlert() {
+            const card = document.getElementById('successCard');
+            card.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+            card.style.opacity = "0"; card.style.transform = "scale(0.95)";
+            setTimeout(() => card.style.display = 'none', 300);
         }
 
-        let lastS = -1;
+        async function fetchConfig() {
+            try {
+                const { data } = await _supabase.from('celebration_config').select('*').eq('id', 1).single();
+                if (data) {
+                    target = new Date(data.target_date);
+                    document.getElementById('eventTitle').innerText = data.event_name;
+                }
+            } catch (e) { console.error("Config load fail", e); }
+        }
+
+        function setupDragAndDrop() {
+            const card = document.getElementById('bankCard');
+            const vault = document.getElementById('dropVault');
+            
+            let startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false;
+
+            if (!card || !vault) return;
+
+            card.addEventListener('mousedown', dragStart);
+            card.addEventListener('touchstart', dragStart, { passive: false });
+
+            function dragStart(e) {
+                if(isPaid) return;
+                isDragging = true;
+                card.classList.add('dragging');
+                const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+                startX = clientX - currentX; startY = clientY - currentY;
+
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('mouseup', dragEnd);
+                document.addEventListener('touchend', dragEnd);
+            }
+
+            function dragMove(e) {
+                if (!isDragging) return;
+                if(e.type === 'touchmove') e.preventDefault();
+                const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+                currentX = clientX - startX; currentY = clientY - startY;
+                card.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+
+                const cardRect = card.getBoundingClientRect();
+                const vaultRect = vault.getBoundingClientRect();
+                if (cardRect.bottom > vaultRect.top && cardRect.top < vaultRect.bottom &&
+                    cardRect.right > vaultRect.left && cardRect.left < vaultRect.right) {
+                    vault.classList.add('hovered');
+                } else { vault.classList.remove('hovered'); }
+            }
+
+            function dragEnd() {
+                isDragging = false;
+                card.classList.remove('dragging');
+                document.removeEventListener('mousemove', dragMove);
+                document.removeEventListener('touchmove', dragMove);
+                
+                const cardRect = card.getBoundingClientRect();
+                const vaultRect = vault.getBoundingClientRect();
+
+                if (cardRect.bottom > vaultRect.top && cardRect.top < vaultRect.bottom &&
+                    cardRect.right > vaultRect.left && cardRect.left < vaultRect.right) {
+                    
+                    if (wallet >= 2.00) {
+                        // INSTANT TRANSACTION EXECUTION — NO CONFIRMATION POPUPS
+                        wallet -= 2.00;
+                        isPaid = true;
+                        localStorage.setItem("sp_bal", wallet);
+                        localStorage.setItem("sp_unl", "1");
+                        updateDisplay();
+                    } else {
+                        // NO BALANCE — JUST REJECT AND SLIDE BACK INSTANTLY
+                        resetCardPosition();
+                    }
+                } else { resetCardPosition(); }
+            }
+
+            function resetCardPosition() {
+                currentX = 0; currentY = 0;
+                card.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+                card.style.transform = `translate3d(0, 0, 0)`;
+                vault.classList.remove('hovered');
+                setTimeout(() => card.style.transition = "none", 400);
+            }
+        }
+
         setInterval(() => {
-            if (!targetDate) return;
-            const diff = targetDate - new Date();
+            if (!target || !isPaid) return;
+            const diff = target - new Date();
             const btn = document.getElementById('startBtn');
+
             if (diff <= 0) {
-                btn.disabled = false;
-                document.getElementById('countdownWrap').innerHTML = "<div style='color:#ffd700; font-weight:bold;'>🌙 Celebration Started! 🎉</div>";
+                if(btn) btn.disabled = false;
                 return;
             }
-            const s = Math.floor((diff % 60000) / 1000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            document.getElementById('days').innerText = Math.floor(diff / 86400000).toString().padStart(2, '0');
-            document.getElementById('hours').innerText = Math.floor((diff % 86400000) / 3600000).toString().padStart(2, '0');
-            document.getElementById('mins').innerText = m.toString().padStart(2, '0');
-            document.getElementById('secs').innerText = s.toString().padStart(2, '0');
-            if (s !== lastS) { flash('secs'); if(s === 59) flash('mins'); lastS = s; }
+
+            const dEl = document.getElementById('d');
+            const hEl = document.getElementById('h');
+            const mEl = document.getElementById('m');
+            const sEl = document.getElementById('s');
+
+            if(dEl) dEl.innerText = Math.floor(diff / 86400000).toString().padStart(2, '0');
+            if(hEl) hEl.innerText = Math.floor((diff % 86400000) / 3600000).toString().padStart(2, '0');
+            if(mEl) mEl.innerText = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+            if(sEl) sEl.innerText = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
         }, 1000);
-        init();
     </script>
 </body>
 </html>
