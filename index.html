@@ -93,7 +93,7 @@
         }
 
         .btn-eid-celebrate {
-            display: none; /* Hidden completely until target countdown triggers open */
+            display: none; 
             flex: 1; padding: 14px 28px; border-radius: 50px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border: none;
             background: #ffffff; color: #4c1d95; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); transition: all 0.3s ease;
             animation: fadeIn 0.5s ease forwards;
@@ -106,7 +106,6 @@
         }
         .btn-eid-learn:hover { background: #ffffff; color: #4c1d95; }
 
-        /* Unlock Notice Status Text Heading Styling */
         .countdown-heading { 
             font-size: 16px; 
             font-weight: 600; 
@@ -115,17 +114,26 @@
             margin-bottom: 20px; 
         }
 
-        .timer-grid-eid { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; width: 100%; }
+        .timer-grid-eid { display: flex; justify-content: center; gap: 12px; margin-bottom: 30px; width: 100%; }
         .timer-item-eid { 
             background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
             width: 65px; height: 65px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .t-val-eid { font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.1; }
         .t-unit-eid { font-size: 9px; color: rgba(255, 255, 255, 0.5); text-transform: uppercase; margin-top: 2px; font-weight: 600; }
+        
+        .popup-toggle-container {
+            display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 25px;
+            background: rgba(0, 0, 0, 0.2); padding: 10px 20px; border-radius: 30px; width: fit-content; margin-left: auto; margin-right: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .popup-toggle-container label { font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.85); cursor: pointer; }
+        .popup-toggle-container input[type="checkbox"] { cursor: pointer; scale: 1.1; accent-color: var(--accent); }
+
         .eid-footer { font-size: 13px; color: rgba(255, 255, 255, 0.6); font-weight: 500; margin-top: 20px; }
 
         /* ==========================================================================
-           LEARN MORE POPUP COMPONENT UI STYLES
+           MODALS
            ========================================================================== */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
@@ -136,7 +144,7 @@
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
 
         .modal-card {
-            background: rgba(30, 20, 50, 0.4); border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(30, 20, 50, 0.45); border: 1px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             padding: 30px; border-radius: 24px; width: 100%; max-width: 440px; text-align: center;
             box-shadow: 0 30px 60px rgba(0,0,0,0.5);
@@ -150,6 +158,12 @@
         .modal-body h4 { font-size: 14px; color: var(--accent); margin-top: 14px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
         .modal-body p { font-size: 13.5px; color: rgba(255, 255, 255, 0.85); line-height: 1.5; margin-bottom: 10px; }
         
+        .qurbani-select {
+            width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            padding: 14px; border-radius: 12px; color: white; font-size: 15px; outline: none; margin-top: 15px; cursor: pointer;
+        }
+        .qurbani-select option { background: #25183a; color: white; }
+
         .btn-modal-close {
             width: 100%; padding: 14px; border-radius: 50px; border: none; font-size: 13px; font-weight: 700; margin-top: 25px;
             background: #ffffff; color: #4c1d95; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;
@@ -161,6 +175,51 @@
 
         .star-ambient { position: fixed; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.3; pointer-events: none; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ==========================================================================
+           DYNAMIC ANIMAL WALK ANIMATION SYSTEM
+           ========================================================================== */
+        #animation-overlay {
+            position: fixed; inset: 0; background: rgba(6, 8, 12, 0.95);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            z-index: 4000; display: none; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        
+        .walking-animal {
+            font-size: 120px; position: absolute; left: -150px; bottom: 35%;
+            filter: drop-shadow(0 10px 25px rgba(0, 242, 255, 0.4));
+            animation: animalWalk 4.5s cubic-bezier(0.4, 0, 0.2, 1) forwards, bobbing 0.5s ease infinite alternate;
+        }
+
+        .festive-msg {
+            position: absolute; width: 100%; text-align: center; top: 20%;
+            font-size: 28px; font-weight: 900; letter-spacing: 1px; color: #fff;
+            text-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes animalWalk {
+            0% { left: -150px; transform: scaleX(1); }
+            45% { left: calc(50% - 60px); transform: scaleX(1); }
+            55% { left: calc(50% - 60px); transform: scaleX(1); }
+            100% { left: 110%; transform: scaleX(1); }
+        }
+
+        @keyframes bobbing {
+            from { transform: translateY(0); }
+            to { transform: translateY(-15px); }
+        }
+
+        /* Particle Confetti System */
+        .confetti-piece {
+            position: absolute; width: 10px; height: 24px; background: #ffd700;
+            opacity: 0.8; top: -50px; animation: fall 3.5s linear infinite;
+        }
+        @keyframes fall {
+            0% { top: -50px; transform: translateX(0) rotate(0deg); }
+            100% { top: 100vh; transform: translateX(120px) rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -209,7 +268,7 @@
 
             <div class="eid-actions-row">
                 <button class="btn-eid-celebrate" id="startBtn" onclick="window.location.href='1.html'">Start Celebration</button>
-                <button class="btn-eid-learn" onclick="openModal()">Learn More</button>
+                <button class="btn-eid-learn" onclick="openModal('learnModal')">Learn More</button>
             </div>
 
             <p class="countdown-heading" id="countdownLabel">The celebration will unlock in</p>
@@ -220,12 +279,17 @@
                 <div class="timer-item-eid"><span class="t-val-eid" id="m">00</span><span class="t-unit-eid">Mins</span></div>
                 <div class="timer-item-eid"><span class="t-val-eid" id="s">00</span><span class="t-unit-eid">Secs</span></div>
             </div>
+
+            <div class="popup-toggle-container" id="checkboxWrapper">
+                <input type="checkbox" id="allowPopupCheck" checked>
+                <label for="allowPopupCheck">Allow qurbani popup</label>
+            </div>
             
             <p class="eid-footer">Wishing you a blessed Eid! 🎉</p>
         </div>
     </div>
 
-    <div class="modal-overlay" id="learnModal" onclick="closeModalOutside(event)">
+    <div class="modal-overlay" id="learnModal" onclick="closeModalOutside(event, 'learnModal')">
         <div class="modal-card">
             <h3>What is Eid?</h3>
             <div class="modal-body">
@@ -237,8 +301,29 @@
                 <h4>Tradition & Culture</h4>
                 <p>Families celebrate by wearing fine clothes, sharing bountiful meals, distributing charity portions to the less fortunate, and exchanging well-wishes saying <i>"Eid Mubarak!"</i></p>
             </div>
-            <button class="btn-modal-close" onclick="closeModal()">Close Panel</button>
+            <button class="btn-modal-close" onclick="closeModal('learnModal')">Close Panel</button>
         </div>
+    </div>
+
+    <div class="modal-overlay" id="qurbaniPopup" data-noclose="true">
+        <div class="modal-card">
+            <h3>Qurbani Selection</h3>
+            <p style="font-size: 15px; color: rgba(255,255,255,0.9); margin-bottom: 10px;">What did you buy in this qurbani?</p>
+            
+            <select class="qurbani-select" id="animalSelect">
+                <option value="🐄">Cow (গরু)</option>
+                <option value="🐑">Dumba (দুম্বা)</option>
+                <option value="🐐">Goat (ছাগল)</option>
+                <option value="🐪">Camel (উট)</option>
+            </select>
+
+            <button class="btn-modal-close" onclick="submitQurbaniSurvey()">Confirm Choice</button>
+        </div>
+    </div>
+
+    <div id="animation-overlay">
+        <div class="festive-msg" id="festiveMessage">Your Qurbani is ready! ✨</div>
+        <div class="walking-animal" id="animatedAnimal">🐄</div>
     </div>
 
     <script>
@@ -249,6 +334,7 @@
         let wallet = parseFloat(localStorage.getItem("sp_bal") || "0");
         let isPaid = localStorage.getItem("sp_unl") === "1";
         let target = null;
+        let popupTriggered = false;
 
         window.onload = () => {
             generateStars();
@@ -267,16 +353,56 @@
             }
         }
 
-        function openModal() {
-            document.getElementById('learnModal').classList.add('open');
+        function openModal(id) {
+            document.getElementById(id).classList.add('open');
         }
-        function closeModal() {
-            document.getElementById('learnModal').classList.remove('open');
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
         }
-        function closeModalOutside(e) {
-            if (e.target === document.getElementById('learnModal')) {
-                closeModal();
+        
+        function closeModalOutside(e, id) {
+            const el = document.getElementById(id);
+            if (el && el.dataset.noclose === "true") return; // Blocks outside clicks on survey modal
+            if (e.target === el) {
+                closeModal(id);
             }
+        }
+
+        /* Running and launching the custom animal motion tracking scene */
+        function submitQurbaniSurvey() {
+            const animalEmoji = document.getElementById('animalSelect').value;
+            closeModal('qurbaniPopup');
+            
+            // Setup the moving environment view
+            const stage = document.getElementById('animation-overlay');
+            const character = document.getElementById('animatedAnimal');
+            
+            character.innerText = animalEmoji;
+            stage.style.display = 'flex';
+            
+            // Spawning dynamic confetti particles
+            for(let i=0; i<30; i++) {
+                let p = document.createElement('div');
+                p.className = 'confetti-piece';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.background = ['#ffd700', '#00f2ff', '#00ff88', '#ff007f'][Math.floor(Math.random()*4)];
+                p.style.animationDelay = (Math.random() * 1.5) + 's';
+                stage.appendChild(p);
+            }
+
+            // Let it perform walk cycle, then close overlay theater automatically
+            setTimeout(() => {
+                stage.style.opacity = '0';
+                stage.style.transition = 'opacity 0.6s ease';
+                setTimeout(() => {
+                    stage.style.display = 'none';
+                    stage.style.opacity = '1';
+                    // Clean extra particles from DOM
+                    const elements = stage.getElementsByClassName('confetti-piece');
+                    while(elements.length > 0){ elements[0].parentNode.removeChild(elements[0]); }
+                }, 600);
+            }, 4500);
         }
 
         async function verify() {
@@ -419,11 +545,18 @@
             const diff = target - new Date();
             const btn = document.getElementById('startBtn');
             const heading = document.getElementById('countdownLabel');
+            const checkboxWrapper = document.getElementById('checkboxWrapper');
 
-            // Countdown is finished
+            // Countdown finished
             if (diff <= 0) {
-                if (btn) btn.style.display = 'block'; // Make the start button visible
-                if (heading) heading.innerText = "The celebration has begun!"; // Update the status text
+                if (btn) btn.style.display = 'block'; 
+                if (heading) heading.innerText = "The celebration has begun!"; 
+                if (checkboxWrapper) checkboxWrapper.style.display = 'none';
+
+                if (document.getElementById('allowPopupCheck').checked && !popupTriggered) {
+                    popupTriggered = true;
+                    openModal('qurbaniPopup');
+                }
 
                 if(document.getElementById('d')) document.getElementById('d').innerText = "00";
                 if(document.getElementById('h')) document.getElementById('h').innerText = "00";
@@ -432,9 +565,10 @@
                 return;
             }
 
-            // Countdown running: ensure button stays hidden & updates tracking notice text
+            // Countdown running
             if (btn) btn.style.display = 'none';
             if (heading) heading.innerText = "The celebration will unlock in";
+            if (checkboxWrapper) checkboxWrapper.style.display = 'flex';
 
             const dEl = document.getElementById('d');
             const hEl = document.getElementById('h');
