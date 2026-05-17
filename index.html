@@ -13,29 +13,65 @@
             --bg: #06080c;
             --card: #12161f;
             --border: #222936;
-            
-            /* Eid UI Theme Colors */
-            --eid-gradient: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+                        
+            /* Dynamic Celebration Gradients */
+            --bg-morning: linear-gradient(135deg, #ff9a9e 0%, #fecfef 60%, #feeedb 100%);
+            --bg-afternoon: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --bg-evening: linear-gradient(135deg, #f12711 0%, #f5af19 100%);
+            --bg-night: linear-gradient(135deg, #1f1c2c 0%, #635b7d 100%);
         }
 
-        * { padding: 0; margin: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
-        
+        * { padding: 0; margin: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }                
         body { 
             background: var(--bg); color: #fff; min-height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; overflow-x: hidden;
-            transition: background 0.5s ease;
+            transition: background 1.5s ease, color 0.5s ease;
         }
 
-        body.eid-theme {
-            background: var(--eid-gradient);
-        }
+        /* Base rule for active dynamic framework */
+        body.eid-theme { transition: background 1.5s ease, color 0.5s ease; }
 
+        /* --- TIME OF DAY CELEBRATION THEME VARIANTS --- */
+        /* Morning Phase (Light Mode Shift) */
+        body.eid-theme.morning {
+            background: var(--bg-morning);
+            color: #1e2530;
+        }
+        body.eid-theme.morning .eid-header h1 { color: #1e2530; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        body.eid-theme.morning .eid-sub, 
+        body.eid-theme.morning .countdown-heading,
+        body.eid-theme.morning .eid-footer { color: rgba(30, 37, 48, 0.75); }
+        body.eid-theme.morning .timer-item-eid { background: rgba(0, 0, 0, 0.06); border-color: rgba(0, 0, 0, 0.1); }
+        body.eid-theme.morning .t-val-eid { color: #1e2530; }
+        body.eid-theme.morning .t-unit-eid { color: rgba(30, 37, 48, 0.6); }
+        body.eid-theme.morning .btn-eid-learn { border-color: #1e2530; color: #1e2530; }
+        body.eid-theme.morning .btn-eid-learn:hover { background: #1e2530; color: #fff; }
+        body.eid-theme.morning .btn-eid-celebrate { background: #1e2530; color: #fff; }
+        body.eid-theme.morning .popup-toggle-container { background: rgba(0, 0, 0, 0.06); border-color: rgba(0, 0, 0, 0.08); }
+        body.eid-theme.morning .popup-toggle-container label { color: #1e2530; }
+        body.eid-theme.morning .star-ambient { display: none !important; }
+
+        /* Afternoon Phase */
+        body.eid-theme.afternoon { background: var(--bg-afternoon); color: #fff; }
+        body.eid-theme.afternoon .star-ambient { display: none !important; }
+        body.eid-theme.afternoon .btn-eid-celebrate { color: #0072b5; }
+
+        /* Evening Phase */
+        body.eid-theme.evening { background: var(--bg-evening); color: #fff; }
+        body.eid-theme.evening .star-ambient { opacity: 0.15; }
+        body.eid-theme.evening .btn-eid-celebrate { color: #d34811; }
+
+        /* Night Phase */
+        body.eid-theme.night { background: var(--bg-night); color: #fff; }
+        body.eid-theme.night .star-ambient { opacity: 0.4; }
+        body.eid-theme.night .btn-eid-celebrate { color: #322b40; }
+
+        /* --- PORTAL CORE ARCHITECTURE --- */
         #gate {
             position: fixed; inset: 0; background: var(--bg);
             z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 30px;
         }
-
-        .auth-card { width: 100%; max-width: 320px; text-align: center; }
+        .auth-card { width: 100%; max-width: 320px; text-align: center; }        
         .auth-card h2 { font-size: 24px; margin-bottom: 30px; font-weight: 800; }
 
         input[type="password"] {
@@ -43,179 +79,159 @@
             padding: 18px; border-radius: 16px; color: #fff;
             font-size: 18px; text-align: center; margin-bottom: 20px; outline: none;
         }
-
-        #main-content { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 600px; margin: 0 auto; width: 100%; }
-        .title-area { margin: 20px 0 30px; text-align: center; }
+        #main-content { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 600px; margin: 0 auto; }        
+        .title-area { margin: 20px 0 30px; text-align: center; }        
         .title-area h1 { font-size: 24px; font-weight: 800; }
         .system-status { font-size: 11px; opacity: 0.4; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase; }
 
         #interactive-zone { width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; gap: 35px; }
-
         .draggable-card {
             width: 100%; height: 190px; background: linear-gradient(135deg, #1e2530 0%, #0c1017 100%);
             border-radius: 24px; padding: 25px; border: 1px solid rgba(255,255,255,0.12);
             box-shadow: 0 20px 40px rgba(0,0,0,0.5); cursor: grab; position: relative; z-index: 10; touch-action: none;
-        }
-        .draggable-card.dragging { cursor: grabbing; box-shadow: 0 25px 50px rgba(0, 242, 255, 0.2); transform: scale(1.01); }
-        .chip { width: 40px; height: 28px; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7); border-radius: 6px; margin-bottom: 25px; }
-        .balance-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.4; }
+        }        
+        .draggable-card.dragging { cursor: grabbing; box-shadow: 0 25px 50px rgba(0, 242, 255, 0.2); transform: scale(1.01); }        
+        .chip { width: 40px; height: 28px; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7); border-radius: 6px; margin-bottom: 25px; }        
+        .balance-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.4; }        
         .balance-amt { font-size: 32px; font-weight: 700; margin-top: 4px; color: var(--accent); }
 
         .drop-vault {
             width: 100%; height: 110px; border: 2px dashed var(--border); border-radius: 24px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             background: rgba(18, 22, 31, 0.3); transition: 0.2s ease;
-        }
-        .drop-vault.hovered { border-color: var(--accent); background: rgba(0, 242, 255, 0.03); }
-        .vault-text { font-size: 13px; font-weight: 700; color: #8b949e; letter-spacing: 0.5px; }
+        }        
+        .drop-vault.hovered { border-color: var(--accent); background: rgba(0, 242, 255, 0.03); }        
+        .vault-text { font-size: 13px; font-weight: 700; color: #8b949e; letter-spacing: 0.5px; }        
         .vault-subtext { font-size: 11px; color: #6e7681; margin-top: 4px; }
 
-        .btn { padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
+        .btn { padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; }        
         .btn-main { width: 100%; background: var(--accent); color: #000; }
 
-        /* ==========================================================================
-           EID CELEBRATION LANDING UI STYLE DEFINITIONS
-           ========================================================================== */
+        /* --- CELEBRATION DISPLAYS --- */
         #event-view { 
             display: none; 
             width: 100%; 
             text-align: center; 
             animation: fadeIn 0.8s ease forwards;
-        }
-        
-        .eid-header { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; }
-        .eid-header h1 { font-size: 42px; font-weight: 800; letter-spacing: 0.5px; color: #ffffff; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .moon-icon { font-size: 36px; display: inline-block; }
-        .eid-sub { font-size: 15px; color: rgba(255, 255, 255, 0.7); margin-bottom: 40px; font-weight: 400; letter-spacing: 0.5px; }
+        }                
+        .eid-header { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; }        
+        .eid-header h1 { font-size: 42px; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }        
+        .moon-icon { font-size: 36px; display: inline-block; transition: transform 0.5s ease; }        
+        .eid-sub { font-size: 15px; margin-bottom: 40px; font-weight: 400; letter-spacing: 0.5px; }
 
         .eid-actions-row {
             display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 45px; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto;
         }
-
         .btn-eid-celebrate {
             display: none; 
             flex: 1; padding: 14px 28px; border-radius: 50px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border: none;
-            background: #ffffff; color: #4c1d95; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); transition: all 0.3s ease;
+            background: #ffffff; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); transition: all 0.3s ease;
             animation: fadeIn 0.5s ease forwards;
-        }
+        }        
         .btn-eid-celebrate:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25); }
 
         .btn-eid-learn {
             flex: 1; padding: 14px 28px; border-radius: 50px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            border: 2px solid #ffffff; background: transparent; color: #ffffff; cursor: pointer; transition: all 0.3s ease;
+            border: 2px solid currentColor; background: transparent; color: inherit; cursor: pointer; transition: all 0.3s ease;
         }
-        .btn-eid-learn:hover { background: #ffffff; color: #4c1d95; }
+        .btn-eid-learn:hover { background: #ffffff; color: #1e2530; border-color: #ffffff; }
 
         .countdown-heading { 
             font-size: 16px; 
             font-weight: 600; 
             letter-spacing: 0.5px; 
-            color: rgba(255, 255, 255, 0.9); 
             margin-bottom: 20px; 
         }
 
-        .timer-grid-eid { display: flex; justify-content: center; gap: 12px; margin-bottom: 30px; width: 100%; }
+        .timer-grid-eid { display: flex; justify-content: center; gap: 12px; margin-bottom: 30px; width: 100%; }        
         .timer-item-eid { 
             background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
             width: 65px; height: 65px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .t-val-eid { font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.1; }
-        .t-unit-eid { font-size: 9px; color: rgba(255, 255, 255, 0.5); text-transform: uppercase; margin-top: 2px; font-weight: 600; }
+            transition: all 0.5s ease;
+        }        
+        .t-val-eid { font-size: 24px; font-weight: 700; line-height: 1.1; transition: color 0.5s ease; }        
+        .t-unit-eid { font-size: 9px; text-transform: uppercase; margin-top: 2px; font-weight: 600; opacity: 0.7; }                
         
         .popup-toggle-container {
             display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 25px;
             background: rgba(0, 0, 0, 0.2); padding: 10px 20px; border-radius: 30px; width: fit-content; margin-left: auto; margin-right: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .popup-toggle-container label { font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.85); cursor: pointer; }
+            border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.5s ease;
+        }        
+        .popup-toggle-container label { font-size: 13px; font-weight: 600; cursor: pointer; }        
         .popup-toggle-container input[type="checkbox"] { cursor: pointer; scale: 1.1; accent-color: var(--accent); }
+        .eid-footer { font-size: 13px; font-weight: 500; margin-top: 20px; }
 
-        .eid-footer { font-size: 13px; color: rgba(255, 255, 255, 0.6); font-weight: 500; margin-top: 20px; }
-
-        /* ==========================================================================
-           MODALS
-           ========================================================================== */
+        /* --- PORTAL MODALS --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
             backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             display: flex; align-items: center; justify-content: center; z-index: 3000; padding: 20px;
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
+        }        
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
 
         .modal-card {
-            background: rgba(30, 20, 50, 0.45); border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(22, 28, 38, 0.8); border: 1px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             padding: 30px; border-radius: 24px; width: 100%; max-width: 440px; text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5); color: #fff;
             transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        }        
         .modal-overlay.open .modal-card { transform: scale(1); }
-
-        .modal-card h3 { font-size: 22px; font-weight: 800; margin-bottom: 18px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
-        
-        .modal-body { text-align: left; max-height: 300px; overflow-y: auto; padding-right: 5px; }
-        .modal-body h4 { font-size: 14px; color: var(--accent); margin-top: 14px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-body p { font-size: 13.5px; color: rgba(255, 255, 255, 0.85); line-height: 1.5; margin-bottom: 10px; }
+        .modal-card h3 { font-size: 22px; font-weight: 800; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }                
+        .modal-body { text-align: left; max-height: 300px; overflow-y: auto; padding-right: 5px; }        
+        .modal-body h4 { font-size: 14px; color: var(--accent); margin-top: 14px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }        
+        .modal-body p { font-size: 13.5px; color: rgba(255, 255, 255, 0.85); line-height: 1.5; margin-bottom: 10px; }                
         
         .qurbani-select {
             width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
             padding: 14px; border-radius: 12px; color: white; font-size: 15px; outline: none; margin-top: 15px; cursor: pointer;
-        }
-        .qurbani-select option { background: #25183a; color: white; }
+        }        
+        .qurbani-select option { background: #161c26; color: white; }
 
         .btn-modal-close {
             width: 100%; padding: 14px; border-radius: 50px; border: none; font-size: 13px; font-weight: 700; margin-top: 25px;
-            background: #ffffff; color: #4c1d95; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;
-        }
+            background: #ffffff; color: #1e2530; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;
+        }        
         .btn-modal-close:hover { background: var(--accent); color: #000; }
-
-        .modal-body::-webkit-scrollbar { width: 4px; }
+        .modal-body::-webkit-scrollbar { width: 4px; }        
         .modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 
-        .star-ambient { position: fixed; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.3; pointer-events: none; }
+        .star-ambient { position: fixed; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.3; pointer-events: none; transition: opacity 1s ease; }        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ==========================================================================
-           DYNAMIC ANIMAL WALK ANIMATION SYSTEM
-           ========================================================================== */
+        /* --- THEATER OVERLAY ANIMATION ENGINE --- */
         #animation-overlay {
             position: fixed; inset: 0; background: rgba(6, 8, 12, 0.95);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             z-index: 4000; display: none; align-items: center; justify-content: center;
             overflow: hidden;
-        }
-        
+        }                
         .walking-animal {
             font-size: 120px; position: absolute; left: -150px; bottom: 35%;
             filter: drop-shadow(0 10px 25px rgba(0, 242, 255, 0.4));
             animation: animalWalk 4.5s cubic-bezier(0.4, 0, 0.2, 1) forwards, bobbing 0.5s ease infinite alternate;
         }
-
         .festive-msg {
             position: absolute; width: 100%; text-align: center; top: 20%;
             font-size: 28px; font-weight: 900; letter-spacing: 1px; color: #fff;
             text-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
             animation: fadeIn 0.8s ease;
         }
-
         @keyframes animalWalk {
             0% { left: -150px; transform: scaleX(1); }
             45% { left: calc(50% - 60px); transform: scaleX(1); }
             55% { left: calc(50% - 60px); transform: scaleX(1); }
             100% { left: 110%; transform: scaleX(1); }
         }
-
         @keyframes bobbing {
             from { transform: translateY(0); }
             to { transform: translateY(-15px); }
         }
-
-        /* Particle Confetti System */
         .confetti-piece {
             position: absolute; width: 10px; height: 24px; background: #ffd700;
             opacity: 0.8; top: -50px; animation: fall 3.5s linear infinite;
-        }
+        }        
         @keyframes fall {
             0% { top: -50px; transform: translateX(0) rotate(0deg); }
             100% { top: 100vh; transform: translateX(120px) rotate(360deg); }
@@ -224,6 +240,7 @@
 </head>
 <body>
 
+    <!-- Access Gate -->
     <div id="gate">
         <div class="auth-card">
             <h2>Portal Access</h2>
@@ -237,11 +254,11 @@
         </div>
     </div>
 
-    <div id="main-content">
-        
+    <!-- Main Framework Console -->
+    <div id="main-content">                
         <div id="interactive-zone">
             <div class="title-area">
-                <h1 style="font-size: 24px; font-weight: 800;">Secure Portal Activation</h1>
+                <h1>Secure Portal Activation</h1>
                 <p class="system-status">Connection Verified</p>
             </div>
             <div class="draggable-card" id="bankCard">
@@ -250,20 +267,19 @@
                 <p class="balance-amt">$<span id="balVal">0.00</span></p>
                 <p style="position:absolute; bottom:25px; right:25px; font-size:11px; font-weight:800; opacity:0.15;">S-PRO BANK</p>
             </div>
-
             <div class="drop-vault" id="dropVault">
                 <p class="vault-text">DRAG CARD HERE TO SECURE ACCESS</p>
                 <p class="vault-subtext">Verification Hold: $2.00</p>
             </div>
         </div>
 
+        <!-- Celebration Dashboard View -->
         <div id="event-view">
             <div class="eid-header">
                 <span class="moon-icon">🌙</span>
                 <h1 id="eventTitle">Eid Ul Adha</h1>
                 <span class="moon-icon">🌙</span>
-            </div>
-            
+            </div>                        
             <p class="eid-sub">Celebration of Sacrifice & Joy</p>
 
             <div class="eid-actions-row">
@@ -271,8 +287,7 @@
                 <button class="btn-eid-learn" onclick="openModal('learnModal')">Learn More</button>
             </div>
 
-            <p class="countdown-heading" id="countdownLabel">The celebration will unlock in</p>
-            
+            <p class="countdown-heading" id="countdownLabel">The celebration will unlock in</p>                        
             <div class="timer-grid-eid">
                 <div class="timer-item-eid"><span class="t-val-eid" id="d">00</span><span class="t-unit-eid">Days</span></div>
                 <div class="timer-item-eid"><span class="t-val-eid" id="h">00</span><span class="t-unit-eid">Hours</span></div>
@@ -283,21 +298,19 @@
             <div class="popup-toggle-container" id="checkboxWrapper">
                 <input type="checkbox" id="allowPopupCheck" checked>
                 <label for="allowPopupCheck">Allow qurbani popup</label>
-            </div>
-            
+            </div>                        
             <p class="eid-footer">Wishing you a blessed Eid! 🎉</p>
         </div>
     </div>
 
+    <!-- Modals & Overlays -->
     <div class="modal-overlay" id="learnModal" onclick="closeModalOutside(event, 'learnModal')">
         <div class="modal-card">
             <h3>What is Eid?</h3>
             <div class="modal-body">
-                <p><b>Eid</b> is an Arabic term meaning "festivity" or "festival". It represents two major holy days observed by millions globally within the Islamic calendar system.</p>
-                
+                <p><b>Eid</b> is an Arabic term meaning "festivity" or "festival". It represents two major holy days observed by millions globally within the Islamic calendar system.</p>                                
                 <h4>Eid Ul Adha</h4>
-                <p>This countdown is dedicated to Eid Ul Adha (the Festival of Sacrifice). It commemorates the profound devotion of Prophet Ibrahim and coincides with the completion of the holy Hajj pilgrimage.</p>
-                
+                <p>This countdown is dedicated to Eid Ul Adha (the Festival of Sacrifice). It commemorates the profound devotion of Prophet Ibrahim and coincides with the completion of the holy Hajj pilgrimage.</p>                                
                 <h4>Tradition & Culture</h4>
                 <p>Families celebrate by wearing fine clothes, sharing bountiful meals, distributing charity portions to the less fortunate, and exchanging well-wishes saying <i>"Eid Mubarak!"</i></p>
             </div>
@@ -308,15 +321,13 @@
     <div class="modal-overlay" id="qurbaniPopup" data-noclose="true">
         <div class="modal-card">
             <h3>Qurbani Selection</h3>
-            <p style="font-size: 15px; color: rgba(255,255,255,0.9); margin-bottom: 10px;">What did you buy in this qurbani?</p>
-            
+            <p style="font-size: 15px; color: rgba(255,255,255,0.9); margin-bottom: 10px;">What did you buy in this qurbani?</p>                        
             <select class="qurbani-select" id="animalSelect">
                 <option value="🐄">Cow (গরু)</option>
                 <option value="🐑">Dumba (দুম্বা)</option>
                 <option value="🐐">Goat (ছাগল)</option>
                 <option value="🐪">Camel (উট)</option>
             </select>
-
             <button class="btn-modal-close" onclick="submitQurbaniSurvey()">Confirm Choice</button>
         </div>
     </div>
@@ -329,12 +340,32 @@
     <script>
         const SUPABASE_URL = 'https://gevhkmpynlwhxohvsszw.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldmhrbXB5bmx3aHhvaHZzc3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTc5OTcsImV4cCI6MjA5Mzg5Mzk5N30.leq6VvuNVYoj_f2V8Qpk-4a0HneIE9YuDpxUW9Pd0_E';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);                
         
         let wallet = parseFloat(localStorage.getItem("sp_bal") || "0");
         let isPaid = localStorage.getItem("sp_unl") === "1";
         let target = null;
         let popupTriggered = false;
+
+        // Cached UI Document nodes for performance optimization
+        const cachedDOM = {
+            body: document.body,
+            gate: document.getElementById('gate'),
+            mainContent: document.getElementById('main-content'),
+            interactiveZone: document.getElementById('interactive-zone'),
+            eventView: document.getElementById('event-view'),
+            balanceValue: document.getElementById('balVal'),
+            eventTitle: document.getElementById('eventTitle'),
+            moonIcons: document.querySelectorAll('.moon-icon'),
+            startBtn: document.getElementById('startBtn'),
+            countdownLabel: document.getElementById('countdownLabel'),
+            checkboxWrapper: document.getElementById('checkboxWrapper'),
+            allowPopupCheck: document.getElementById('allowPopupCheck'),
+            days: document.getElementById('d'),
+            hours: document.getElementById('h'),
+            mins: document.getElementById('m'),
+            secs: document.getElementById('s')
+        };
 
         window.onload = () => {
             generateStars();
@@ -353,35 +384,48 @@
             }
         }
 
-        function openModal(id) {
-            document.getElementById(id).classList.add('open');
-        }
-        
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('open');
-        }
-        
-        function closeModalOutside(e, id) {
-            const el = document.getElementById(id);
-            if (el && el.dataset.noclose === "true") return; // Blocks outside clicks on survey modal
-            if (e.target === el) {
-                closeModal(id);
+        /* Time-of-Day Dynamic Environment Engine */
+        function applyTimeBasedTheme() {
+            if (!isPaid) return; 
+
+            const hour = new Date().getHours();
+            let currentPhase = 'night';
+
+            cachedDOM.body.classList.remove('morning', 'afternoon', 'evening', 'night');
+
+            if (hour >= 6 && hour < 12) {
+                currentPhase = 'morning';       // 6:00 AM - 11:59 AM
+            } else if (hour >= 12 && hour < 16) {
+                currentPhase = 'afternoon';     // 12:00 PM - 3:59 PM
+            } else if (hour >= 16 && hour < 19) {
+                currentPhase = 'evening';       // 4:00 PM - 6:59 PM
+            } else {
+                currentPhase = 'night';         // 7:00 PM - 5:59 AM
             }
+
+            cachedDOM.body.classList.add('eid-theme', currentPhase);
+            
+            const celestialSymbol = (currentPhase === 'morning' || currentPhase === 'afternoon') ? '☀️' : '🌙';
+            cachedDOM.moonIcons.forEach(icon => icon.innerText = celestialSymbol);
         }
 
-        /* Running and launching the custom animal motion tracking scene */
+        function openModal(id) { document.getElementById(id).classList.add('open'); }                
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }                
+        function closeModalOutside(e, id) {
+            const el = document.getElementById(id);
+            if (el && el.dataset.noclose === "true") return; 
+            if (e.target === el) closeModal(id);
+        }
+
         function submitQurbaniSurvey() {
             const animalEmoji = document.getElementById('animalSelect').value;
-            closeModal('qurbaniPopup');
+            closeModal('qurbaniPopup');                        
             
-            // Setup the moving environment view
             const stage = document.getElementById('animation-overlay');
-            const character = document.getElementById('animatedAnimal');
-            
+            const character = document.getElementById('animatedAnimal');                        
             character.innerText = animalEmoji;
-            stage.style.display = 'flex';
-            
-            // Spawning dynamic confetti particles
+            stage.style.display = 'flex';                        
+
             for(let i=0; i<30; i++) {
                 let p = document.createElement('div');
                 p.className = 'confetti-piece';
@@ -391,14 +435,12 @@
                 stage.appendChild(p);
             }
 
-            // Let it perform walk cycle, then close overlay theater automatically
             setTimeout(() => {
                 stage.style.opacity = '0';
                 stage.style.transition = 'opacity 0.6s ease';
                 setTimeout(() => {
                     stage.style.display = 'none';
                     stage.style.opacity = '1';
-                    // Clean extra particles from DOM
                     const elements = stage.getElementsByClassName('confetti-piece');
                     while(elements.length > 0){ elements[0].parentNode.removeChild(elements[0]); }
                 }, 600);
@@ -417,8 +459,7 @@
             try {
                 const { data, error } = await _supabase.rpc('verify_and_redeem_code', { input_code: typedCode });
                 if (error) throw error;
-                const result = data[0];
-                
+                const result = data[0];                                
                 if (result && result.is_valid) {
                     wallet = parseFloat(result.code_value);
                     localStorage.setItem("sp_bal", wallet);
@@ -437,23 +478,19 @@
         }
 
         function unlockUI() {
-            document.getElementById('gate').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
+            if (cachedDOM.gate) cachedDOM.gate.style.display = 'none';
+            if (cachedDOM.mainContent) cachedDOM.mainContent.style.display = 'block';
             fetchConfig();
             updateDisplay();
             setupDragAndDrop();
         }
 
         function updateDisplay() {
-            const balElement = document.getElementById('balVal');
-            if (balElement) balElement.innerText = wallet.toFixed(2);
-            
+            if (cachedDOM.balanceValue) cachedDOM.balanceValue.innerText = wallet.toFixed(2);                        
             if (isPaid) {
-                document.body.classList.add('eid-theme');
-                const interactiveZone = document.getElementById('interactive-zone');
-                const eventView = document.getElementById('event-view');
-                if (interactiveZone) interactiveZone.style.display = 'none';
-                if (eventView) eventView.style.display = 'block';
+                applyTimeBasedTheme(); 
+                if (cachedDOM.interactiveZone) cachedDOM.interactiveZone.style.display = 'none';
+                if (cachedDOM.eventView) cachedDOM.eventView.style.display = 'block';
             }
         }
 
@@ -462,7 +499,7 @@
                 const { data } = await _supabase.from('celebration_config').select('*').eq('id', 1).single();
                 if (data) {
                     target = new Date(data.target_date);
-                    document.getElementById('eventTitle').innerText = data.event_name;
+                    if (cachedDOM.eventTitle) cachedDOM.eventTitle.innerText = data.event_name;
                 }
             } catch (e) { console.error("Config load fail", e); }
         }
@@ -501,7 +538,7 @@
 
                 const cardRect = card.getBoundingClientRect();
                 const vaultRect = vault.getBoundingClientRect();
-                if (cardRect.bottom > vaultRect.top && cardRect.top < vaultRect.bottom &&
+                if (cardRect.bottom > vaultRect.top && cardRect.top < vaultRect.bottom &&                    
                     cardRect.right > vaultRect.left && cardRect.left < vaultRect.right) {
                     vault.classList.add('hovered');
                 } else { vault.classList.remove('hovered'); }
@@ -511,23 +548,19 @@
                 isDragging = false;
                 card.classList.remove('dragging');
                 document.removeEventListener('mousemove', dragMove);
-                document.removeEventListener('touchmove', dragMove);
-                
+                document.removeEventListener('touchmove', dragMove);                                
                 const cardRect = card.getBoundingClientRect();
                 const vaultRect = vault.getBoundingClientRect();
 
-                if (cardRect.bottom > vaultRect.top && cardRect.top < vaultRect.bottom &&
-                    cardRect.right > vaultRect.left && cardRect.left < vaultRect.right) {
-                    
+                if (cardRect.bottom > vaultRect.top && cardRect.top < vaultRect.bottom &&                    
+                    cardRect.right > vaultRect.left && cardRect.left < vaultRect.right) {                                        
                     if (wallet >= 2.00) {
                         wallet -= 2.00;
                         isPaid = true;
                         localStorage.setItem("sp_bal", wallet);
                         localStorage.setItem("sp_unl", "1");
                         updateDisplay();
-                    } else {
-                        resetCardPosition();
-                    }
+                    } else { resetCardPosition(); }
                 } else { resetCardPosition(); }
             }
 
@@ -540,45 +573,38 @@
             }
         }
 
+        // Live Environment and Countdown Loop Handler
         setInterval(() => {
+            if (isPaid) applyTimeBasedTheme(); // Constantly keeps the color synced perfectly
             if (!target || !isPaid) return;
+
             const diff = target - new Date();
-            const btn = document.getElementById('startBtn');
-            const heading = document.getElementById('countdownLabel');
-            const checkboxWrapper = document.getElementById('checkboxWrapper');
 
-            // Countdown finished
             if (diff <= 0) {
-                if (btn) btn.style.display = 'block'; 
-                if (heading) heading.innerText = "The celebration has begun!"; 
-                if (checkboxWrapper) checkboxWrapper.style.display = 'none';
+                if (cachedDOM.startBtn) cachedDOM.startBtn.style.display = 'block'; 
+                if (cachedDOM.countdownLabel) cachedDOM.countdownLabel.innerText = "The celebration has begun!"; 
+                if (cachedDOM.checkboxWrapper) cachedDOM.checkboxWrapper.style.display = 'none';
 
-                if (document.getElementById('allowPopupCheck').checked && !popupTriggered) {
+                if (cachedDOM.allowPopupCheck.checked && !popupTriggered) {
                     popupTriggered = true;
                     openModal('qurbaniPopup');
                 }
 
-                if(document.getElementById('d')) document.getElementById('d').innerText = "00";
-                if(document.getElementById('h')) document.getElementById('h').innerText = "00";
-                if(document.getElementById('m')) document.getElementById('m').innerText = "00";
-                if(document.getElementById('s')) document.getElementById('s').innerText = "00";
+                if(cachedDOM.days) cachedDOM.days.innerText = "00";
+                if(cachedDOM.hours) cachedDOM.hours.innerText = "00";
+                if(cachedDOM.mins) cachedDOM.mins.innerText = "00";
+                if(cachedDOM.secs) cachedDOM.secs.innerText = "00";
                 return;
             }
 
-            // Countdown running
-            if (btn) btn.style.display = 'none';
-            if (heading) heading.innerText = "The celebration will unlock in";
-            if (checkboxWrapper) checkboxWrapper.style.display = 'flex';
+            if (cachedDOM.startBtn) cachedDOM.startBtn.style.display = 'none';
+            if (cachedDOM.countdownLabel) cachedDOM.countdownLabel.innerText = "The celebration will unlock in";
+            if (cachedDOM.checkboxWrapper) cachedDOM.checkboxWrapper.style.display = 'flex';
 
-            const dEl = document.getElementById('d');
-            const hEl = document.getElementById('h');
-            const mEl = document.getElementById('m');
-            const sEl = document.getElementById('s');
-
-            if(dEl) dEl.innerText = Math.floor(diff / 86400000).toString().padStart(2, '0');
-            if(hEl) hEl.innerText = Math.floor((diff % 86400000) / 3600000).toString().padStart(2, '0');
-            if(mEl) mEl.innerText = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-            if(sEl) sEl.innerText = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+            if(cachedDOM.days) cachedDOM.days.innerText = Math.floor(diff / 86400000).toString().padStart(2, '0');
+            if(cachedDOM.hours) cachedDOM.hours.innerText = Math.floor((diff % 86400000) / 3600000).toString().padStart(2, '0');
+            if(cachedDOM.mins) cachedDOM.mins.innerText = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+            if(cachedDOM.secs) cachedDOM.secs.innerText = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
         }, 1000);
     </script>
 </body>
