@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Gate — Access Control</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b12;
+    --bg2: #0d1420;
+    --bg3: #121a2b;
+    --bg4: #1a2438;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.15);
+    --amber-glow: rgba(245,158,11,0.08);
+    --green: #10b981;
+    --green-dim: rgba(16,185,129,0.13);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.13);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.13);
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --text3: #475569;
+    --radius: 12px;
+    --radius2: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    min-height: 100vh;
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* ─── TOPBAR ─── */
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-icon {
+    width: 32px; height: 32px;
+    background: var(--amber);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .brand-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+  .brand-name span { color: var(--amber); }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    color: var(--green);
+    background: var(--green-dim);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(16,185,129,0.25);
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.5; transform:scale(0.7); }
+  }
+  .clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text2);
+  }
+
+  /* ─── NAV TABS ─── */
+  .nav {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    padding: 0 28px;
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.2px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    position: relative;
+    top: 1px;
+    user-select: none;
+  }
+  .nav-tab:hover { color: var(--text2); }
+  .nav-tab.active {
+    color: var(--amber);
+    border-bottom-color: var(--amber);
+  }
+  .nav-tab .tab-icon { font-size: 15px; }
+
+  /* ─── MAIN LAYOUT ─── */
+  .main { flex: 1; padding: 28px; max-width: 1280px; margin: 0 auto; width: 100%; }
+
+  /* ─── VIEWS ─── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ─── DASHBOARD ─── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--border2); }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat-card.amber::before { background: var(--amber); }
+  .stat-card.green::before { background: var(--green); }
+  .stat-card.red::before { background: var(--red); }
+  .stat-card.blue::before { background: var(--blue); }
+  .stat-icon {
+    font-size: 22px;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .dash-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media(max-width: 900px) { .dash-bottom { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel-body { padding: 16px 20px; }
+
+  /* Activity Feed */
+  .activity-list { display: flex; flex-direction: column; gap: 2px; }
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius2);
+    transition: background 0.15s;
+  }
+  .activity-item:hover { background: var(--bg4); }
+  .activity-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .activity-dot.success { background: var(--green); }
+  .activity-dot.error { background: var(--red); }
+  .activity-dot.warn { background: var(--amber); }
+  .activity-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--amber);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .activity-status { font-size: 12px; font-weight: 600; }
+  .activity-status.ok { color: var(--green); }
+  .activity-status.fail { color: var(--red); }
+  .activity-time {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  /* Progress bar */
+  .progress-wrap { margin-bottom: 20px; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .progress-label span:first-child { color: var(--text2); font-weight: 500; }
+  .progress-label span:last-child { color: var(--amber); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .progress-bar {
+    height: 6px;
+    background: var(--bg4);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), #fbbf24);
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-fill.green { background: linear-gradient(90deg, var(--green), #34d399); }
+  .progress-fill.red { background: linear-gradient(90deg, var(--red), #f87171); }
+
+  /* ─── SCANNER VIEW ─── */
+  .scanner-layout {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  @media(max-width: 900px) { .scanner-layout { grid-template-columns: 1fr; } }
+
+  .scanner-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .scanner-top {
+    padding: 24px;
+    background: var(--bg4);
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .scanner-title { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; }
+  .scanner-sub { font-size: 20px; font-weight: 700; color: var(--text); }
+
+  .scanner-body { padding: 24px; }
+
+  .input-group { position: relative; margin-bottom: 14px; }
+  .scan-input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius2);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 3px;
+    padding: 16px 48px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .scan-input::placeholder { color: var(--text3); letter-spacing: 2px; font-size: 14px; font-weight: 400; }
+  .scan-input:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px var(--amber-glow);
+  }
+  .input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--text3);
+  }
+
+  .scan-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--amber);
+    color: #0a0a0a;
+    border: none;
+    border-radius: var(--radius2);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .scan-btn:hover { background: #fbbf24; transform: translateY(-1px); }
+  .scan-btn:active { transform: translateY(0); }
+  .scan-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .shortcut-hint {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  kbd {
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text2);
+  }
+
+  /* Result panel */
+  .result-box {
+    margin-top: 20px;
+    border-radius: var(--radius2);
+    overflow: hidden;
+    animation: slideIn 0.25s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .result-header {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .result-header.success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(16,185,129,0.25); border-bottom: none; border-radius: var(--radius2) var(--radius2) 0 0; }
+  .result-header.error { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.25); border-bottom: none; border-radius: var(--radius2) var(--radius2) 0 0; }
+  .result-header.warn { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); border-bottom: none; border-radius: var(--radius2) var(--radius2) 0 0; }
+  .result-header.info { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.25); border-bottom: none; border-radius: var(--radius2) var(--radius2) 0 0; }
+
+  .result-body {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 0 0 var(--radius2) var(--radius2);
+    padding: 16px 18px;
+  }
+  .result-body.success { border-color: rgba(16,185,129,0.2); }
+  .result-body.error { border-color: rgba(239,68,68,0.2); }
+  .result-body.warn { border-color: rgba(245,158,11,0.2); }
+  .result-body.info { border-color: rgba(59,130,246,0.2); }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 16px;
+    font-size: 13px;
+  }
+  .detail-key { color: var(--text3); font-weight: 600; white-space: nowrap; }
+  .detail-val {
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    word-break: break-all;
+  }
+  .detail-val.highlight { color: var(--amber); font-weight: 600; }
+
+  /* Pulse animation on successful scan */
+  .scan-flash {
+    animation: flashGreen 0.5s ease;
+  }
+  .scan-flash-red { animation: flashRed 0.5s ease; }
+  @keyframes flashGreen {
+    0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+    100% { box-shadow: 0 0 0 20px rgba(16,185,129,0); }
+  }
+  @keyframes flashRed {
+    0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.6); }
+    100% { box-shadow: 0 0 0 20px rgba(239,68,68,0); }
+  }
+
+  /* Recent scans side panel */
+  .recent-scans { display: flex; flex-direction: column; gap: 8px; max-height: 600px; overflow-y: auto; }
+  .scan-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+  .scan-item:hover { border-color: var(--border2); }
+  .scan-item-status {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .scan-item-status.ok { background: var(--green-dim); }
+  .scan-item-status.fail { background: var(--red-dim); }
+  .scan-item-status.dup { background: var(--amber-dim); }
+  .scan-item-info { flex: 1; overflow: hidden; }
+  .scan-item-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .scan-item-detail { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .scan-item-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+
+  /* ─── HISTORY TABLE ─── */
+  .history-toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-box {
+    flex: 1;
+    min-width: 220px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius2);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--amber); }
+  .search-box::placeholder { color: var(--text3); }
+
+  .filter-select {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius2);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 14px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .action-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius2);
+    color: var(--text2);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .action-btn:hover { background: var(--bg4); color: var(--text); border-color: var(--border2); }
+  .action-btn.amber-btn { background: var(--amber-dim); border-color: rgba(245,158,11,0.3); color: var(--amber); }
+  .action-btn.amber-btn:hover { background: rgba(245,158,11,0.25); }
+
+  .table-wrap {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .data-table thead {
+    background: var(--bg4);
+    border-bottom: 1px solid var(--border2);
+  }
+  .data-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+  }
+  .data-table th:hover { color: var(--text2); }
+  .data-table th.sorted { color: var(--amber); }
+  .sort-arrow { margin-left: 4px; font-size: 10px; }
+  .data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--bg4); }
+  .data-table .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--amber);
+    font-weight: 600;
+  }
+  .data-table .text-dim { color: var(--text3); font-size: 12px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+  .badge-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+
+  .table-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text3);
+    background: var(--bg4);
+  }
+  .page-btns { display: flex; gap: 6px; }
+  .page-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .page-btn:hover { background: var(--bg4); }
+  .page-btn.active { background: var(--amber-dim); border-color: rgba(245,158,11,0.4); color: var(--amber); }
+  .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ─── EMPTY STATE ─── */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-title { font-size: 15px; font-weight: 700; color: var(--text2); margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; }
+
+  /* ─── LOADING ─── */
+  .loading {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 40px;
+    color: var(--text3); font-size: 13px;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--amber);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── SETTINGS ─── */
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media(max-width: 700px) { .settings-grid { grid-template-columns: 1fr; } }
+
+  .settings-section {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .settings-section h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text2);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-field { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+  }
+  .form-input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius2);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--amber); }
+  .form-input::placeholder { color: var(--text3); }
+  .form-hint { font-size: 11px; color: var(--text3); margin-top: 5px; }
+
+  .save-btn {
+    background: var(--amber);
+    color: #0a0a0a;
+    border: none;
+    border-radius: var(--radius2);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .save-btn:hover { background: #fbbf24; }
+
+  /* Toggle */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-label { font-size: 13px; color: var(--text); }
+  .toggle-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .toggle {
+    width: 40px; height: 22px;
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 11px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--amber); border-color: var(--amber); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 14px; height: 14px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(18px); }
+
+  /* ─── NOTIFICATION TOAST ─── */
+  #toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    max-width: 320px;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">🎟️</div>
+    <div class="brand-name">Event<span>Gate</span></div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      LIVE
+    </div>
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
+    <span class="tab-icon">📊</span> Dashboard
+  </div>
+  <div class="nav-tab" onclick="switchTab('scanner')" data-tab="scanner">
+    <span class="tab-icon">📡</span> Scanner
+  </div>
+  <div class="nav-tab" onclick="switchTab('history')" data-tab="history">
+    <span class="tab-icon">📋</span> History
+  </div>
+  <div class="nav-tab" onclick="switchTab('settings')" data-tab="settings">
+    <span class="tab-icon">⚙️</span> Settings
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div id="view-dashboard" class="view active">
+    <div class="stats-grid">
+      <div class="stat-card amber">
+        <span class="stat-icon">🎟️</span>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-label">Total Tickets</div>
+        <div class="stat-sub">All registered tickets</div>
+      </div>
+      <div class="stat-card green">
+        <span class="stat-icon">✅</span>
+        <div class="stat-value" id="stat-used">—</div>
+        <div class="stat-label">Admitted</div>
+        <div class="stat-sub" id="stat-used-pct">—% checked in</div>
+      </div>
+      <div class="stat-card blue">
+        <span class="stat-icon">⏳</span>
+        <div class="stat-value" id="stat-pending">—</div>
+        <div class="stat-label">Remaining</div>
+        <div class="stat-sub">Not yet scanned</div>
+      </div>
+      <div class="stat-card red">
+        <span class="stat-icon">📡</span>
+        <div class="stat-value" id="stat-session">0</div>
+        <div class="stat-label">This Session</div>
+        <div class="stat-sub" id="stat-session-time">Started just now</div>
+      </div>
+    </div>
+
+    <div class="dash-bottom">
+      <!-- Entry Progress -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📈 Entry Progress</div>
+          <div style="font-size:12px;color:var(--text3)" id="last-refresh">—</div>
+        </div>
+        <div class="panel-body">
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>Overall Check-in</span>
+              <span id="prog-pct-text">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill amber" id="prog-fill" style="width:0%"></div></div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>Admitted</span>
+              <span id="prog-used">0</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill green" id="prog-fill2" style="width:0%"></div></div>
+          </div>
+          <div class="progress-wrap" style="margin-bottom:0">
+            <div class="progress-label">
+              <span>Remaining</span>
+              <span id="prog-pending">0</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill red" id="prog-fill3" style="width:100%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">⚡ Live Activity</div>
+          <div style="font-size:11px;color:var(--text3)">Last 20 events</div>
+        </div>
+        <div class="panel-body" style="padding:8px 12px">
+          <div class="activity-list" id="activity-list">
+            <div class="empty"><div class="empty-icon">📭</div><div class="empty-sub">No activity yet</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCANNER ═══ -->
+  <div id="view-scanner" class="view">
+    <div class="scanner-layout">
+      <!-- Left: Scanner Card -->
+      <div>
+        <div class="scanner-card" id="scanner-card">
+          <div class="scanner-top">
+            <div class="scanner-title">Gate Access Terminal</div>
+            <div class="scanner-sub">Scan or Enter Ticket ID</div>
+          </div>
+          <div class="scanner-body">
+            <div class="input-group">
+              <span class="input-icon">🔍</span>
+              <input type="text" class="scan-input" id="ticketInput"
+                placeholder="TICKET-ID"
+                autocomplete="off" autocorrect="off" spellcheck="false" autofocus>
+            </div>
+            <button class="scan-btn" id="scanBtn" onclick="verifyTicket()">
+              <span>▶</span> Verify & Admit
+            </button>
+            <div class="shortcut-hint">
+              Press <kbd>Enter</kbd> to scan · <kbd>Esc</kbd> to clear
+            </div>
+            <div id="scan-result"></div>
+          </div>
+        </div>
+
+        <!-- Quick Stats under scanner -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+          <div class="stat-card green" style="padding:16px">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Session Admits</div>
+            <div style="font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace" id="q-admits">0</div>
+          </div>
+          <div class="stat-card red" style="padding:16px">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Rejected</div>
+            <div style="font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace" id="q-rejects">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Recent Scans -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🕓 Recent Scans</div>
+          <button class="action-btn" style="padding:6px 10px;font-size:12px" onclick="clearRecentUI()">Clear</button>
+        </div>
+        <div style="padding:12px;max-height:620px;overflow-y:auto">
+          <div class="recent-scans" id="recent-list">
+            <div class="empty">
+              <div class="empty-icon">📡</div>
+              <div class="empty-title">Awaiting scans</div>
+              <div class="empty-sub">Scanned tickets appear here</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ HISTORY ═══ -->
+  <div id="view-history" class="view">
+    <div class="history-toolbar">
+      <input type="text" class="search-box" id="histSearch" placeholder="Search by code, name, or any field..." oninput="filterTable()">
+      <select class="filter-select" id="histFilter" onchange="filterTable()">
+        <option value="all">All Tickets</option>
+        <option value="used">Admitted</option>
+        <option value="unused">Not Admitted</option>
+      </select>
+      <button class="action-btn" onclick="loadHistory()">🔄 Refresh</button>
+      <button class="action-btn amber-btn" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+
+    <div class="table-wrap">
+      <div id="hist-loading" class="loading"><div class="spinner"></div> Loading history...</div>
+      <div id="hist-content" style="display:none">
+        <table class="data-table" id="hist-table">
+          <thead>
+            <tr id="table-head-row"></tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+        <div class="table-footer">
+          <span id="tbl-info">— entries</span>
+          <div class="page-btns" id="page-btns"></div>
+        </div>
+      </div>
+      <div id="hist-empty" style="display:none" class="empty">
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">No records found</div>
+        <div class="empty-sub">Try adjusting your search or filter</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SETTINGS ═══ -->
+  <div id="view-settings" class="view">
+    <div class="settings-grid">
+      <div class="settings-section">
+        <h3>🔌 Supabase Connection</h3>
+        <div class="form-field">
+          <label class="form-label">Project URL</label>
+          <input type="text" class="form-input" id="cfg-url" placeholder="https://xxx.supabase.co">
+          <div class="form-hint">Your Supabase project URL</div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Anon/Public Key</label>
+          <input type="password" class="form-input" id="cfg-key" placeholder="eyJhbGci...">
+          <div class="form-hint">Your Supabase anon key (public is fine)</div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Table Name</label>
+          <input type="text" class="form-input" id="cfg-table" placeholder="card_codes">
+          <div class="form-hint">Database table containing ticket data</div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Ticket Code Column</label>
+          <input type="text" class="form-input" id="cfg-codefield" placeholder="code_text">
+          <div class="form-hint">Column used to match scanned codes</div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Used/Admitted Column</label>
+          <input type="text" class="form-input" id="cfg-usedfield" placeholder="is_used">
+          <div class="form-hint">Boolean column that marks admitted tickets</div>
+        </div>
+        <button class="save-btn" onclick="saveConfig()">💾 Save & Connect</button>
+      </div>
+
+      <div class="settings-section">
+        <h3>⚙️ Scanner Preferences</h3>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Auto-Admit on Scan</div>
+            <div class="toggle-sub">Automatically mark ticket as used</div>
+          </div>
+          <div class="toggle on" id="tog-autoadmit" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Sound Feedback</div>
+            <div class="toggle-sub">Play beep on successful scan</div>
+          </div>
+          <div class="toggle on" id="tog-sound" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Block Duplicate Scans</div>
+            <div class="toggle-sub">Warn if ticket already admitted</div>
+          </div>
+          <div class="toggle on" id="tog-dup" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Auto-focus Input</div>
+            <div class="toggle-sub">Keep scanner input always focused</div>
+          </div>
+          <div class="toggle on" id="tog-focus" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Show All Columns in History</div>
+            <div class="toggle-sub">Display every database column</div>
+          </div>
+          <div class="toggle on" id="tog-allcols" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <div class="form-label" style="margin-bottom:10px">Connection Status</div>
+          <div id="conn-status" style="font-size:13px;color:var(--text3)">Not connected — save credentials first</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .main -->
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────
+let SUPABASE_URL = localStorage.getItem('eg_url') || 'YOUR_SUPABASE_URL_HERE';
+let SUPABASE_KEY = localStorage.getItem('eg_key') || 'YOUR_SUPABASE_KEY_HERE';
+let TABLE        = localStorage.getItem('eg_table') || 'card_codes';
+let CODE_FIELD   = localStorage.getItem('eg_code')  || 'code_text';
+let USED_FIELD   = localStorage.getItem('eg_used')  || 'is_used';
+
+let mySupabase = null;
+function initSupabase() {
+  try {
+    mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return true;
+  } catch(e) { return false; }
+}
+initSupabase();
+
+// ─── STATE ─────────────────────────────────────────────────────
+const state = {
+  sessionAdmits: 0,
+  sessionRejects: 0,
+  sessionStart: Date.now(),
+  activity: [],
+  allData: [],
+  filteredData: [],
+  currentPage: 1,
+  pageSize: 20,
+  sortCol: '',
+  sortDir: 1,
+  recentScans: []
+};
+
+// ─── CLOCK ─────────────────────────────────────────────────────
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─── TABS ──────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  if (tab === 'dashboard') loadDashboard();
+  if (tab === 'history') loadHistory();
+  if (tab === 'settings') loadSettingsForm();
+  if (tab === 'scanner') setTimeout(() => document.getElementById('ticketInput')?.focus(), 50);
+}
+
+// ─── SETTINGS ──────────────────────────────────────────────────
+function loadSettingsForm() {
+  document.getElementById('cfg-url').value = SUPABASE_URL;
+  document.getElementById('cfg-key').value = SUPABASE_KEY;
+  document.getElementById('cfg-table').value = TABLE;
+  document.getElementById('cfg-codefield').value = CODE_FIELD;
+  document.getElementById('cfg-usedfield').value = USED_FIELD;
+}
+
+function saveConfig() {
+  SUPABASE_URL = document.getElementById('cfg-url').value.trim();
+  SUPABASE_KEY = document.getElementById('cfg-key').value.trim();
+  TABLE        = document.getElementById('cfg-table').value.trim() || 'card_codes';
+  CODE_FIELD   = document.getElementById('cfg-codefield').value.trim() || 'code_text';
+  USED_FIELD   = document.getElementById('cfg-usedfield').value.trim() || 'is_used';
+  localStorage.setItem('eg_url',   SUPABASE_URL);
+  localStorage.setItem('eg_key',   SUPABASE_KEY);
+  localStorage.setItem('eg_table', TABLE);
+  localStorage.setItem('eg_code',  CODE_FIELD);
+  localStorage.setItem('eg_used',  USED_FIELD);
+  if (initSupabase()) {
+    document.getElementById('conn-status').innerHTML = '<span style="color:var(--green)">✅ Connected successfully</span>';
+    showToast('✅ Configuration saved!', 'green');
+  } else {
+    document.getElementById('conn-status').innerHTML = '<span style="color:var(--red)">❌ Connection failed — check credentials</span>';
+    showToast('❌ Failed to connect', 'red');
+  }
+}
+
+// ─── DASHBOARD ─────────────────────────────────────────────────
+async function loadDashboard() {
+  if (!mySupabase) return;
+  try {
+    const { data, error } = await mySupabase.from(TABLE).select('*');
+    if (error || !data) return;
+    const total   = data.length;
+    const used    = data.filter(r => r[USED_FIELD]).length;
+    const pending = total - used;
+    const pct     = total ? Math.round(used / total * 100) : 0;
+    const pendPct = total ? Math.round(pending / total * 100) : 0;
+
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-used').textContent    = used;
+    document.getElementById('stat-pending').textContent = pending;
+    document.getElementById('stat-used-pct').textContent = pct + '% checked in';
+    document.getElementById('prog-pct-text').textContent = pct + '%';
+    document.getElementById('prog-used').textContent    = used;
+    document.getElementById('prog-pending').textContent = pending;
+    document.getElementById('prog-fill').style.width    = pct + '%';
+    document.getElementById('prog-fill2').style.width   = pct + '%';
+    document.getElementById('prog-fill3').style.width   = pendPct + '%';
+    document.getElementById('last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch(e) {}
+}
+
+function updateSessionStat() {
+  document.getElementById('stat-session').textContent = state.sessionAdmits;
+  const elapsed = Math.floor((Date.now() - state.sessionStart) / 60000);
+  document.getElementById('stat-session-time').textContent =
+    elapsed < 1 ? 'Started just now' : 'Started ' + elapsed + 'm ago';
+}
+
+function pushActivity(code, status, label) {
+  const time = new Date().toLocaleTimeString();
+  state.activity.unshift({ code, status, label, time });
+  if (state.activity.length > 20) state.activity.pop();
+  renderActivity();
+}
+
+function renderActivity() {
+  const el = document.getElementById('activity-list');
+  if (!state.activity.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-sub">No activity yet</div></div>';
+    return;
+  }
+  el.innerHTML = state.activity.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot ${a.status}"></div>
+      <div class="activity-code">${a.code}</div>
+      <div class="activity-status ${a.status === 'success' ? 'ok' : 'fail'}">${a.label}</div>
+      <div class="activity-time">${a.time}</div>
+    </div>
+  `).join('');
+}
+
+// ─── SCANNER ───────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const inp = document.getElementById('ticketInput');
+    if (inp && inp.value.trim()) verifyTicket();
+  }
+  if (e.key === 'Escape') {
+    const inp = document.getElementById('ticketInput');
+    if (inp) { inp.value = ''; document.getElementById('scan-result').innerHTML = ''; inp.focus(); }
+  }
+});
+
+// Auto-focus
+setInterval(() => {
+  const tog = document.getElementById('tog-focus');
+  if (tog && tog.classList.contains('on')) {
+    const inp = document.getElementById('ticketInput');
+    const view = document.getElementById('view-scanner');
+    if (inp && view && view.classList.contains('active') && document.activeElement !== inp) inp.focus();
+  }
+}, 800);
+
+async function verifyTicket() {
+  const input = document.getElementById('ticketInput');
+  const resultDiv = document.getElementById('scan-result');
+  const btn = document.getElementById('scanBtn');
+  const code = input.value.trim();
+
+  if (!code) { input.focus(); return; }
+  if (!mySupabase) {
+    showResult(resultDiv, 'error', '🔌', 'Not Connected', 'Configure Supabase in Settings first.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px"></div> Checking...';
+
+  try {
+    const { data, error } = await mySupabase
+      .from(TABLE).select('*').eq(CODE_FIELD, code).single();
+
+    if (error || !data) {
+      state.sessionRejects++;
+      document.getElementById('q-rejects').textContent = state.sessionRejects;
+      pushActivity(code, 'error', 'NOT FOUND');
+      showResult(resultDiv, 'error', '❌', 'Ticket Not Found', 'This ID does not exist in the system.');
+      flashCard('red');
+      playBeep('error');
+      input.value = '';
+      input.focus();
+      btn.disabled = false;
+      btn.innerHTML = '<span>▶</span> Verify & Admit';
+      updateSessionStat();
+      return;
+    }
+
+    const alreadyUsed = data[USED_FIELD];
+    const dupBlock = document.getElementById('tog-dup').classList.contains('on');
+
+    if (alreadyUsed && dupBlock) {
+      pushActivity(code, 'warn', 'DUPLICATE');
+      showResult(resultDiv, 'warn', '⚠️', 'Already Admitted', 'This ticket was previously scanned.', data);
+      flashCard('amber');
+      playBeep('warn');
+    } else {
+      const autoAdmit = document.getElementById('tog-autoadmit').classList.contains('on');
+      if (autoAdmit && !alreadyUsed) {
+        await mySupabase.from(TABLE).update({ [USED_FIELD]: true }).eq(CODE_FIELD, code);
+      }
+      state.sessionAdmits++;
+      document.getElementById('q-admits').textContent = state.sessionAdmits;
+      pushActivity(code, 'success', 'ADMITTED');
+      showResult(resultDiv, 'success', '✅', 'Access Granted', alreadyUsed ? 'Ticket already marked.' : 'Ticket validated & admitted.', data);
+      flashCard('green');
+      playBeep('success');
+    }
+
+    addToRecentScans(code, data, alreadyUsed);
+    input.value = '';
+    input.focus();
+  } catch(e) {
+    showResult(resultDiv, 'error', '🔌', 'Connection Error', 'Could not reach database. Check settings.');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>▶</span> Verify & Admit';
+  updateSessionStat();
+}
+
+function showResult(el, type, icon, title, sub, data) {
+  let details = '';
+  if (data) {
+    const priorityKeys = [CODE_FIELD, USED_FIELD, 'name', 'email', 'phone', 'seat', 'category', 'type'];
+    const keys = [...new Set([...priorityKeys, ...Object.keys(data)])].filter(k => k in data);
+    details = `<div class="detail-grid" style="margin-top:12px">` +
+      keys.slice(0, 10).map(k => {
+        const v = data[k];
+        const isCode = k === CODE_FIELD;
+        return `<div class="detail-key">${k}</div><div class="detail-val ${isCode ? 'highlight' : ''}">${v === null ? '<em style="color:var(--text3)">null</em>' : String(v)}</div>`;
+      }).join('') + `</div>`;
+  }
+  el.innerHTML = `
+    <div class="result-box">
+      <div class="result-header ${type}">${icon} ${title}</div>
+      <div class="result-body ${type}">
+        <div style="font-size:13px;color:var(--text2)">${sub}</div>
+        ${details}
+      </div>
+    </div>`;
+}
+
+function flashCard(color) {
+  const card = document.getElementById('scanner-card');
+  const cls = color === 'green' ? 'scan-flash' : color === 'red' ? 'scan-flash-red' : '';
+  if (!cls) return;
+  card.classList.add(cls);
+  setTimeout(() => card.classList.remove(cls), 600);
+}
+
+function playBeep(type) {
+  if (!document.getElementById('tog-sound').classList.contains('on')) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function note(freq, startTime, duration, vol = 0.18, oscType = 'sine') {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      // Gentle high-cut to remove harshness
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 4000;
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = oscType;
+      osc.frequency.setValueAtTime(freq, startTime);
+      // Smooth attack + exponential decay
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.linearRampToValueAtTime(vol, startTime + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+      osc.start(startTime);
+      osc.stop(startTime + duration + 0.01);
+    }
+
+    const t = ctx.currentTime;
+
+    if (type === 'success') {
+      // Upward major chord arpeggio: C5 → E5 → G5 + chime shimmer
+      note(523.25, t,        0.35, 0.16);           // C5
+      note(659.25, t + 0.09, 0.35, 0.16);           // E5
+      note(783.99, t + 0.18, 0.45, 0.16);           // G5
+      note(1046.5, t + 0.18, 0.45, 0.07, 'triangle'); // C6 shimmer
+    } else if (type === 'warn') {
+      // Two-tone attention: warm pulse pair
+      note(440, t,        0.22, 0.14);               // A4
+      note(349.23, t + 0.25, 0.30, 0.14);            // F4 — resolves down
+    } else {
+      // Error: descending minor interval — thud + drop
+      note(220,  t,        0.18, 0.20, 'triangle');  // A3 thud
+      note(174.6, t + 0.15, 0.35, 0.18, 'triangle'); // F3 drop
+      note(130.8, t + 0.28, 0.40, 0.12, 'triangle'); // C3 rumble
+    }
+  } catch(e) {}
+}
+
+function addToRecentScans(code, data, dup) {
+  const status = dup ? 'dup' : 'ok';
+  const icon = dup ? '⚠️' : '✅';
+  const label = dup ? 'Duplicate' : 'Admitted';
+  const sub = data.name || data.email || Object.values(data).find(v => typeof v === 'string' && v && v !== code) || '';
+  state.recentScans.unshift({ code, status, icon, label, sub, time: new Date().toLocaleTimeString() });
+  if (state.recentScans.length > 50) state.recentScans.pop();
+  renderRecentScans();
+}
+
+function renderRecentScans() {
+  const el = document.getElementById('recent-list');
+  if (!state.recentScans.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📡</div><div class="empty-title">Awaiting scans</div><div class="empty-sub">Scanned tickets appear here</div></div>`;
+    return;
+  }
+  el.innerHTML = state.recentScans.map(s => `
+    <div class="scan-item">
+      <div class="scan-item-status ${s.status}">${s.icon}</div>
+      <div class="scan-item-info">
+        <div class="scan-item-code">${s.code}</div>
+        <div class="scan-item-detail">${s.label}${s.sub ? ' · ' + s.sub : ''}</div>
+      </div>
+      <div class="scan-item-time">${s.time}</div>
+    </div>`).join('');
+}
+
+function clearRecentUI() {
+  state.recentScans = [];
+  renderRecentScans();
+}
+
+// ─── HISTORY ───────────────────────────────────────────────────
+async function loadHistory() {
+  if (!mySupabase) {
+    document.getElementById('hist-loading').innerHTML = '<div class="empty"><div class="empty-icon">🔌</div><div class="empty-title">Not connected</div><div class="empty-sub">Configure Supabase in Settings</div></div>';
+    return;
+  }
+  document.getElementById('hist-loading').style.display = 'flex';
+  document.getElementById('hist-content').style.display = 'none';
+  document.getElementById('hist-empty').style.display = 'none';
+
+  try {
+    const { data, error } = await mySupabase.from(TABLE).select('*').order('id', { ascending: false });
+    if (error) throw error;
+    state.allData = data || [];
+    state.currentPage = 1;
+    filterTable();
+    document.getElementById('hist-loading').style.display = 'none';
+    document.getElementById('hist-content').style.display = 'block';
+  } catch(e) {
+    document.getElementById('hist-loading').innerHTML = `<div class="empty"><div class="empty-icon">❌</div><div class="empty-title">Failed to load</div><div class="empty-sub">${e.message}</div></div>`;
+  }
+}
+
+function filterTable() {
+  const search = document.getElementById('histSearch').value.toLowerCase();
+  const filter = document.getElementById('histFilter').value;
+
+  state.filteredData = state.allData.filter(row => {
+    const matchSearch = !search || Object.values(row).some(v => String(v).toLowerCase().includes(search));
+    const matchFilter = filter === 'all' ||
+      (filter === 'used' && row[USED_FIELD]) ||
+      (filter === 'unused' && !row[USED_FIELD]);
+    return matchSearch && matchFilter;
+  });
+
+  state.currentPage = 1;
+  renderTable();
+}
+
+function sortBy(col) {
+  if (state.sortCol === col) state.sortDir *= -1;
+  else { state.sortCol = col; state.sortDir = 1; }
+  state.filteredData.sort((a, b) => {
+    const av = a[col] ?? ''; const bv = b[col] ?? '';
+    return av < bv ? -state.sortDir : av > bv ? state.sortDir : 0;
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const data = state.filteredData;
+  const { currentPage: pg, pageSize: ps } = state;
+  const totalPages = Math.max(1, Math.ceil(data.length / ps));
+  const slice = data.slice((pg - 1) * ps, pg * ps);
+
+  if (!data.length) {
+    document.getElementById('hist-content').style.display = 'none';
+    document.getElementById('hist-empty').style.display = 'block';
+    return;
+  }
+  document.getElementById('hist-content').style.display = 'block';
+  document.getElementById('hist-empty').style.display = 'none';
+
+  const cols = state.allData.length ? Object.keys(state.allData[0]) : [];
+
+  // HEAD
+  const headRow = document.getElementById('table-head-row');
+  headRow.innerHTML = cols.map(c => {
+    const sorted = state.sortCol === c;
+    const arrow = sorted ? (state.sortDir === 1 ? '↑' : '↓') : '';
+    return `<th class="${sorted ? 'sorted' : ''}" onclick="sortBy('${c}')">${c} <span class="sort-arrow">${arrow}</span></th>`;
+  }).join('');
+
+  // BODY
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = slice.map(row => `
+    <tr>
+      ${cols.map(c => {
+        const v = row[c];
+        if (c === USED_FIELD) {
+          return `<td>${v ? '<span class="badge badge-green">✓ Admitted</span>' : '<span class="badge badge-red">○ Pending</span>'}</td>`;
+        }
+        if (c === CODE_FIELD) return `<td><span class="mono">${v ?? ''}</span></td>`;
+        if (v === null || v === undefined) return `<td><span class="text-dim">—</span></td>`;
+        if (typeof v === 'string' && v.length > 40) return `<td title="${v}">${v.substring(0,38)}…</td>`;
+        return `<td>${v}</td>`;
+      }).join('')}
+    </tr>`).join('');
+
+  // FOOTER
+  document.getElementById('tbl-info').textContent = `Showing ${(pg-1)*ps+1}–${Math.min(pg*ps, data.length)} of ${data.length} entries`;
+
+  const pageBtns = document.getElementById('page-btns');
+  const pages = [];
+  pages.push(`<button class="page-btn" onclick="goPage(${pg-1})" ${pg===1?'disabled':''}>‹</button>`);
+  for (let i = Math.max(1, pg-2); i <= Math.min(totalPages, pg+2); i++) {
+    pages.push(`<button class="page-btn ${i===pg?'active':''}" onclick="goPage(${i})">${i}</button>`);
+  }
+  pages.push(`<button class="page-btn" onclick="goPage(${pg+1})" ${pg===totalPages?'disabled':''}>›</button>`);
+  pageBtns.innerHTML = pages.join('');
+}
+
+function goPage(n) {
+  const max = Math.ceil(state.filteredData.length / state.pageSize);
+  state.currentPage = Math.max(1, Math.min(max, n));
+  renderTable();
+}
+
+function exportCSV() {
+  if (!state.filteredData.length) { showToast('No data to export', 'amber'); return; }
+  const cols = Object.keys(state.filteredData[0]);
+  const rows = [cols.join(','), ...state.filteredData.map(r =>
+    cols.map(c => { const v = r[c]; return v === null ? '' : `"${String(v).replace(/"/g,'""')}"`; }).join(',')
+  )];
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `tickets_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`✅ Exported ${state.filteredData.length} rows`, 'green');
+}
+
+// ─── TOAST ─────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type = 'green') {
+  const t = document.getElementById('toast');
+  const colors = { green: 'var(--green)', red: 'var(--red)', amber: 'var(--amber)', blue: 'var(--blue)' };
+  t.innerHTML = `<span style="color:${colors[type]||colors.green}">${msg}</span>`;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── INIT ──────────────────────────────────────────────────────
+loadSettingsForm();
+loadDashboard();
+setInterval(() => {
+  if (document.getElementById('view-dashboard').classList.contains('active')) loadDashboard();
+}, 30000);
+</script>
+</body>
+</html>
