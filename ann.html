@@ -6,6 +6,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { background: #06080c; color: #fff; display: flex; height: 100vh; margin: 0; font-family: sans-serif; overflow: hidden; }
+        #overlay { position:fixed; inset:0; background:#06080c; z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; }
         #promo-sidebar { width: 320px; background: #161c26; border-left: 2px solid #00f2ff; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .promo-card { background: linear-gradient(135deg, #1e2530, #0c1017); padding: 30px; border-radius: 20px; border: 1px solid #00f2ff; }
         .promo-card a { color: #00f2ff; font-weight: bold; text-decoration: none; display: block; margin-top: 15px; font-size: 18px; }
@@ -17,12 +18,16 @@
 </head>
 <body>
 
+    <div id="overlay">
+        <button onclick="armSystem()" style="padding:30px 60px; font-size:24px; cursor:pointer; background:#00f2ff; border:none; border-radius:15px; font-weight:bold;">ARM ANNOUNCEMENT SYSTEM</button>
+    </div>
+
     <div id="main">
         <div class="visualizer" id="viz">
             <div class="bar"></div><div class="bar"></div><div class="bar"></div>
             <div class="bar"></div><div class="bar"></div><div class="bar"></div>
         </div>
-        <div id="subtitles">Monitoring Celebration...</div>
+        <div id="subtitles">System Armed. Waiting...</div>
     </div>
 
     <div id="promo-sidebar">
@@ -34,28 +39,30 @@
     </div>
 
     <script>
-    // 1. Wait for the Supabase library to fully load
-    window.addEventListener('load', () => {
         const SUPABASE_URL = 'https://gevhkmpynlwhxohvsszw.supabase.co';
+        // I have hardcoded the key you provided earlier
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldmhrbXB5bmx3aHhvaHZzc3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTc5OTcsImV4cCI6MjA5Mzg5Mzk5N30.leq6VvuNVYoj_f2V8Qpk-4a0HneIE9YuDpxUW9Pd0_E';
-
-        // 2. Access the library safely
-        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const synth = window.speechSynthesis;
         const subDisplay = document.getElementById('subtitles');
         const bars = document.querySelectorAll('.bar');
         const textToSpeak = "Eed Mubarak! May your day be filled with joy. Please post your Eed wishes at our website. This project took two months of hard work to complete. Also, everyone, please check your Gmail account. We have sent a special Eed wish to your email.";
 
-        // --- WATCHER ---
+        let systemArmed = false;
+        function armSystem() {
+            document.getElementById('overlay').style.display = 'none';
+            systemArmed = true;
+            const wakeUp = new SpeechSynthesisUtterance("");
+            synth.speak(wakeUp);
+            subDisplay.innerText = "Monitoring database...";
+        }
+
         let hasTriggered = false;
         setInterval(async () => {
-            if (hasTriggered) return;
-
+            if (hasTriggered || !systemArmed) return;
             try {
-                // Use the 'client' variable we created inside the load event
                 const { data } = await client.from('celebration_config').select('target_date').eq('id', 1).single();
-                
                 if (data && new Date() >= new Date(data.target_date)) {
                     startAnnouncement();
                 }
@@ -67,25 +74,20 @@
         function startAnnouncement() {
             hasTriggered = true;
             const msg = new SpeechSynthesisUtterance(textToSpeak);
-            
             msg.onboundary = (event) => {
                 const word = textToSpeak.substring(event.charIndex).split(' ')[0].replace(/[.,!]/g, '');
                 if (word) subDisplay.innerText = word;
             };
-
             const anim = setInterval(() => {
                 bars.forEach(bar => bar.style.height = (Math.random() * 90 + 10) + "px");
             }, 100);
-
             msg.onend = () => {
                 clearInterval(anim);
                 subDisplay.innerText = "Eed Mubarak!";
                 bars.forEach(bar => bar.style.height = "20px");
             };
-
             synth.speak(msg);
         }
-    });
-</script>
+    </script>
 </body>
 </html>
