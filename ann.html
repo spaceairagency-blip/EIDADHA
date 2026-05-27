@@ -1,56 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Eid Announcement System</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { background: #06080c; color: #fff; display: flex; height: 100vh; margin: 0; font-family: sans-serif; overflow: hidden; }
-        #promo-sidebar { width: 320px; background: #161c26; border-left: 2px solid #00f2ff; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .promo-card { background: linear-gradient(135deg, #1e2530, #0c1017); padding: 30px; border-radius: 20px; border: 1px solid #00f2ff; }
-        .promo-card a { color: #00f2ff; font-weight: bold; text-decoration: none; display: block; margin-top: 15px; font-size: 18px; }
-        #main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .visualizer { display: flex; gap: 10px; height: 100px; align-items: center; margin-bottom: 30px; }
-        .bar { width: 12px; height: 20px; background: #00f2ff; border-radius: 4px; transition: 0.15s ease-out; }
-        #subtitles { font-size: 32px; font-weight: 800; color: #00f2ff; height: 60px; text-align: center; }
-    </style>
-</head>
-<body>
-
-    <div id="main">
-        <div class="visualizer" id="viz">
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        </div>
-        <div id="subtitles">Monitoring Celebration...</div>
-    </div>
-
-    <div id="promo-sidebar">
-        <div class="promo-card">
-            <h3>Eid Wishes</h3>
-            <p>Share your joy with others!</p>
-            <a href="https://eid7.vercel.app/po.html">Post Your Wishes Now &rarr;</a>
-        </div>
-    </div>
-
-    <script>
-        // --- 1. SETUP ---
+<script>
+    // 1. Wait for the Supabase library to fully load
+    window.addEventListener('load', () => {
         const SUPABASE_URL = 'https://gevhkmpynlwhxohvsszw.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldmhrbXB5bmx3aHhvaHZzc3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTc5OTcsImV4cCI6MjA5Mzg5Mzk5N30.leq6VvuNVYoj_f2V8Qpk-4a0HneIE9YuDpxUW9Pd0_E'; // <--- PUT YOUR KEY HERE
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const SUPABASE_KEY = 'YOUR_KEY_HERE';
+
+        // 2. Access the library safely
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
         const synth = window.speechSynthesis;
         const subDisplay = document.getElementById('subtitles');
         const bars = document.querySelectorAll('.bar');
         const textToSpeak = "Eed Mubarak! May your day be filled with joy. Please post your Eed wishes at our website. This project took two months of hard work to complete. Also, everyone, please check your Gmail account. We have sent a special Eed wish to your email.";
 
-        // --- 2. WATCHER ---
+        // --- WATCHER ---
         let hasTriggered = false;
         setInterval(async () => {
             if (hasTriggered) return;
 
             try {
-                const { data } = await supabase.from('celebration_config').select('target_date').eq('id', 1).single();
+                // Use the 'client' variable we created inside the load event
+                const { data } = await client.from('celebration_config').select('target_date').eq('id', 1).single();
+                
                 if (data && new Date() >= new Date(data.target_date)) {
                     startAnnouncement();
                 }
@@ -59,7 +29,6 @@
             }
         }, 5000);
 
-        // --- 3. ANNOUNCEMENT LOGIC ---
         function startAnnouncement() {
             hasTriggered = true;
             const msg = new SpeechSynthesisUtterance(textToSpeak);
@@ -81,6 +50,5 @@
 
             synth.speak(msg);
         }
-    </script>
-</body>
-</html>
+    });
+</script>
