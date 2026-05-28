@@ -1,589 +1,76 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Goru Hat - Cinematic 3D Cow Trading | Ultra Realistic</title>
+    <title>The Persistent Cow</title>
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, 'Roboto', sans-serif;
-        }
-        /* UI Overlay */
-        #ui {
-            position: absolute;
-            bottom: 25px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            z-index: 20;
-            pointer-events: none;
-        }
-        .glass-panel {
-            background: rgba(10, 10, 20, 0.75);
-            backdrop-filter: blur(16px);
-            border-radius: 60px;
-            display: inline-flex;
-            gap: 20px;
-            padding: 12px 28px;
-            border: 1px solid rgba(255, 215, 0, 0.6);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            pointer-events: auto;
-        }
-        button {
-            background: linear-gradient(135deg, #e6b422, #d48f2b);
-            border: none;
-            color: #1e1a0c;
-            font-weight: bold;
-            font-size: 1.1rem;
-            padding: 10px 28px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-family: inherit;
-            letter-spacing: 1px;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        button:hover {
-            transform: scale(1.03);
-            background: linear-gradient(135deg, #f5c542, #e69a2e);
-            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
-        }
-        #resetBtn {
-            background: linear-gradient(135deg, #3a5a7a, #2c3e66);
-            color: #f0f0f0;
-        }
-        .story-text {
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(8px);
-            padding: 8px 24px;
-            border-radius: 40px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: #ffefb9;
-            margin-left: 18px;
-            display: inline-block;
-            font-family: monospace;
-        }
-        .title-card {
-            position: absolute;
-            top: 22px;
-            left: 22px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            padding: 8px 20px;
-            border-radius: 40px;
-            color: #ffde9c;
-            font-weight: 600;
-            font-size: 1rem;
-            z-index: 20;
-            pointer-events: none;
-            border-left: 4px solid #ffcc44;
-            font-family: monospace;
-        }
-        .audience-count {
-            position: absolute;
-            top: 22px;
-            right: 22px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            padding: 6px 18px;
-            border-radius: 40px;
-            color: #dddddd;
-            font-weight: 500;
-            font-family: monospace;
-            z-index: 20;
-            pointer-events: none;
-        }
-        @media (max-width: 700px) {
-            button { padding: 6px 16px; font-size: 0.8rem; }
-            .story-text { font-size: 0.7rem; }
-            .title-card { font-size: 0.7rem; top: 12px; left: 12px; }
-        }
-        .instruction {
-            position: absolute;
-            bottom: 18px;
-            right: 18px;
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(4px);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            color: #ccc;
-            font-family: monospace;
-            pointer-events: none;
-        }
+        body { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #e0f7fa; font-family: sans-serif; }
+        #cow { font-size: 100px; position: relative; transition: transform 0.2s; }
+        #speech-bubble { visibility: hidden; background: #fff; padding: 8px 15px; border-radius: 12px; position: absolute; top: -60px; border: 2px solid #333; width: 200px; text-align: center; font-size: 12px; font-weight: bold; }
+        button { padding: 15px 30px; font-size: 18px; cursor: pointer; background: #ff9800; border: none; border-radius: 10px; color: white; }
     </style>
 </head>
 <body>
-    <div id="ui">
-        <div class="glass-panel">
-            <button id="playBtn">▶ PLAY CINEMATIC SHOW</button>
-            <button id="resetBtn">⟳ RESET WORLD</button>
-            <div class="story-text" id="storyStatus">✨ IDLE | PRESS PLAY ✨</div>
-        </div>
-    </div>
-    <div class="title-card">
-        🐃 GORU HAT • REALISTIC COW SAGA
-    </div>
-    <div class="audience-count" id="audienceDisplay">
-        👥 SPECTATORS: 100
-    </div>
-    <div class="instruction">
-        🎬 Auto cinematic experience | Camera tracks the action
+
+    <button id="startBtn" onclick="initExperience()">Start Cow Show</button>
+
+    <div id="cow">
+        <div id="speech-bubble"></div>
+        🐮
     </div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
-            }
-        }
-    </script>
+    <script>
+        const fullText = "Hey friend, You're gonna eat me now right? I can't wait!";
+        const words = fullText.split(" ");
+        const cow = document.getElementById('cow');
+        const bubble = document.getElementById('speech-bubble');
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+        function initExperience() {
+            // Hide the button once started
+            document.getElementById('startBtn').style.display = 'none';
+            // Start the infinite loop
+            loopAction();
+        }
 
-        // --- Setup Scene with Realistic Lighting & Shadows ---
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x050b1a);
-        scene.fog = new THREE.FogExp2(0x050b1a, 0.012);
-        
-        // Camera: cinematic wide
-        const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(9, 5.5, 12);
-        
-        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.body.appendChild(renderer.domElement);
-        
-        // CSS2D Renderer for labels and TV
-        const labelRenderer = new CSS2DRenderer();
-        labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        labelRenderer.domElement.style.position = 'absolute';
-        labelRenderer.domElement.style.top = '0px';
-        labelRenderer.domElement.style.left = '0px';
-        labelRenderer.domElement.style.pointerEvents = 'none';
-        document.body.appendChild(labelRenderer.domElement);
-        
-        // --- Orbit Controls for interactive viewing but auto-target will override during show
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.06;
-        controls.autoRotate = false;
-        controls.enableZoom = true;
-        controls.target.set(0, 1.8, 0);
-        
-        // --- ENVIRONMENT: Realistic Grand Hall with pillars and stage ---
-        const roomSize = 28;
-        // Marble-like floor
-        const floorMat = new THREE.MeshStandardMaterial({ color: 0x2c2a2e, roughness: 0.25, metalness: 0.7, emissive: 0x111111 });
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, roomSize), floorMat);
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -0.15;
-        floor.receiveShadow = true;
-        scene.add(floor);
-        
-        // Wooden stage
-        const stageMat = new THREE.MeshStandardMaterial({ color: 0xaa7c5a, roughness: 0.4, metalness: 0.1 });
-        const stage = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.2, 4.5), stageMat);
-        stage.position.set(0, -0.05, 0);
-        stage.receiveShadow = true;
-        stage.castShadow = true;
-        scene.add(stage);
-        
-        // Pillars (realistic)
-        const pillarMat = new THREE.MeshStandardMaterial({ color: 0xbcae8f, roughness: 0.3, metalness: 0.6 });
-        for (let i = -1; i <= 1; i+=2) {
-            for (let j = -1; j <= 1; j+=2) {
-                const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.7, 4.2, 24), pillarMat);
-                pillar.position.set(i * 7.5, 1.8, j * 7);
-                pillar.castShadow = true;
-                pillar.receiveShadow = true;
-                scene.add(pillar);
-            }
-        }
-        
-        // Back wall with ornate pattern
-        const backWall = new THREE.Mesh(new THREE.BoxGeometry(14, 6, 0.4), new THREE.MeshStandardMaterial({ color: 0x5d4e3a, roughness: 0.5 }));
-        backWall.position.set(0, 2.2, -7.8);
-        backWall.receiveShadow = true;
-        scene.add(backWall);
-        
-        // --- GIANT 4K TV Screen on wall ---
-        const tvFrame = new THREE.Mesh(new THREE.BoxGeometry(4.8, 3.0, 0.2), new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9, roughness: 0.2 }));
-        tvFrame.position.set(0, 2.6, -7.6);
-        tvFrame.castShadow = true;
-        scene.add(tvFrame);
-        const tvScreenMat = new THREE.MeshStandardMaterial({ color: 0x1a4c7a, emissive: 0x1155aa, emissiveIntensity: 0.6 });
-        const tvScreen = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.6, 0.08), tvScreenMat);
-        tvScreen.position.set(0, 2.6, -7.45);
-        scene.add(tvScreen);
-        
-        // CSS Text on TV
-        const tvTextDiv = document.createElement('div');
-        tvTextDiv.textContent = '🐄 GORU MARKET • LIVE AUCTION 🐄';
-        tvTextDiv.style.backgroundColor = 'rgba(0,0,0,0.75)';
-        tvTextDiv.style.color = '#ffcc66';
-        tvTextDiv.style.fontSize = '20px';
-        tvTextDiv.style.fontWeight = 'bold';
-        tvTextDiv.style.padding = '8px 18px';
-        tvTextDiv.style.borderRadius = '12px';
-        tvTextDiv.style.fontFamily = 'monospace';
-        tvTextDiv.style.border = '1px solid gold';
-        const tvLabel = new CSS2DObject(tvTextDiv);
-        tvLabel.position.set(0, 3.2, -7.3);
-        scene.add(tvLabel);
-        
-        // --- Advanced Audience: 100 detailed cardboards with varied colors + subtle animation
-        const audienceGroup = new THREE.Group();
-        const skinColors = [0xd9b48b, 0xc9a87c, 0xdebc8a, 0xe5c9a2, 0xc2a575];
-        const shirtColors = [0x4f7a8c, 0x6a9c89, 0xb5651d, 0x2c3e50, 0x8e5a3c];
-        for (let i = 0; i < 100; i++) {
-            const x = (Math.random() - 0.5) * 20;
-            const z = (Math.random() - 0.5) * 12 - 3;
-            let finalX = x, finalZ = z;
-            if (Math.abs(finalX) < 4 && finalZ < 1) finalX += finalX > 0 ? 5 : -5;
-            if (finalZ < -5) finalZ = -5 + Math.random() * 1.5;
-            if (finalZ > 4) finalZ = 3.5;
-            const bodyMat = new THREE.MeshStandardMaterial({ color: shirtColors[i % shirtColors.length], roughness: 0.5 });
-            const body = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.9, 0.48), bodyMat);
-            body.position.set(finalX, -0.05 + 0.45, finalZ);
-            body.castShadow = true;
-            audienceGroup.add(body);
-            const headMat = new THREE.MeshStandardMaterial({ color: skinColors[i % skinColors.length], roughness: 0.2 });
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 24, 24), headMat);
-            head.position.set(finalX, 0.85, finalZ);
-            head.castShadow = true;
-            audienceGroup.add(head);
-        }
-        scene.add(audienceGroup);
-        
-        // --- MARKET STALL with wooden details ---
-        const stallWood = new THREE.MeshStandardMaterial({ color: 0xb87c4f, roughness: 0.7 });
-        const stallBase = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.3, 2.6), stallWood);
-        stallBase.position.set(0, -0.05, 0.2);
-        stallBase.receiveShadow = true;
-        scene.add(stallBase);
-        const counter = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.2, 1.2), new THREE.MeshStandardMaterial({ color: 0xc28b55 }));
-        counter.position.set(0, 0.2, 0.8);
-        counter.castShadow = true;
-        scene.add(counter);
-        
-        // --- REALISTIC COW (Goru) high-poly look with fur effect via normal maps? but fine detail ---
-        const cowGroup = new THREE.Group();
-        // body with smoothness
-        const bodyMatCow = new THREE.MeshStandardMaterial({ color: 0xf5ede0, roughness: 0.35, metalness: 0.05 });
-        const bodyCow = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.85, 1.7), bodyMatCow);
-        bodyCow.position.set(0, 0.32, 0);
-        bodyCow.castShadow = true;
-        cowGroup.add(bodyCow);
-        
-        // udder detail
-        const udder = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8), new THREE.MeshStandardMaterial({ color: 0xeac0a0 }));
-        udder.position.set(0, 0.05, 0.65);
-        cowGroup.add(udder);
-        
-        // legs with hooves
-        const legPos = [[-0.55,0,-0.75],[0.55,0,-0.75],[-0.55,0,0.7],[0.55,0,0.7]];
-        legPos.forEach(pos => {
-            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.55, 8), new THREE.MeshStandardMaterial({ color: 0xe0c8a0 }));
-            leg.position.set(pos[0], pos[1]+0.22, pos[2]);
-            leg.castShadow = true;
-            cowGroup.add(leg);
-        });
-        // head
-        const headCow = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.72, 0.65), new THREE.MeshStandardMaterial({ color: 0xf5e8cf }));
-        headCow.position.set(0, 0.62, 0.92);
-        headCow.castShadow = true;
-        cowGroup.add(headCow);
-        const snoutCow = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.45, 0.35), new THREE.MeshStandardMaterial({ color: 0xffccaa }));
-        snoutCow.position.set(0, 0.52, 1.18);
-        cowGroup.add(snoutCow);
-        // eyes
-        const eyeMatBl = new THREE.MeshStandardMaterial({ color: 0x000000 });
-        const leftEyeCow = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24), eyeMatBl);
-        leftEyeCow.position.set(-0.26, 0.78, 1.1);
-        const rightEyeCow = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24), eyeMatBl);
-        rightEyeCow.position.set(0.26, 0.78, 1.1);
-        cowGroup.add(leftEyeCow, rightEyeCow);
-        // horns curved
-        const hornMatC = new THREE.MeshStandardMaterial({ color: 0xbc9a6c });
-        const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.4, 8), hornMatC);
-        hornL.position.set(-0.38, 0.92, 0.98);
-        hornL.rotation.z = -0.25;
-        const hornR = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.4, 8), hornMatC);
-        hornR.position.set(0.38, 0.92, 0.98);
-        hornR.rotation.z = 0.25;
-        cowGroup.add(hornL, hornR);
-        // spots
-        const spotMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
-        const spotA = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16), spotMat);
-        spotA.position.set(0.55, 0.48, 0.15);
-        const spotB = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16), spotMat);
-        spotB.position.set(-0.52, 0.55, -0.35);
-        cowGroup.add(spotA, spotB);
-        
-        cowGroup.castShadow = true;
-        cowGroup.position.set(0, 0.05, 0.3);
-        scene.add(cowGroup);
-        
-        // Cow CSS label
-        const cowLabelDiv = document.createElement('div');
-        cowLabelDiv.textContent = '🐃 GORU • PRICE 80💰';
-        cowLabelDiv.style.backgroundColor = 'rgba(0,0,0,0.75)';
-        cowLabelDiv.style.color = '#ffd966';
-        cowLabelDiv.style.padding = '5px 14px';
-        cowLabelDiv.style.borderRadius = '32px';
-        cowLabelDiv.style.fontWeight = 'bold';
-        cowLabelDiv.style.fontSize = '14px';
-        cowLabelDiv.style.backdropFilter = 'blur(4px)';
-        const cowLabelObj = new CSS2DObject(cowLabelDiv);
-        cowLabelObj.position.set(0, 1.28, 0);
-        cowGroup.add(cowLabelObj);
-        
-        // --- Avatar (Realistic herder) ---
-        const avatar = new THREE.Group();
-        const bodyAv = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.95, 0.72), new THREE.MeshStandardMaterial({ color: 0x6c8cbf, roughness: 0.3 }));
-        bodyAv.position.y = 0.48;
-        bodyAv.castShadow = true;
-        avatar.add(bodyAv);
-        const headAv = new THREE.Mesh(new THREE.SphereGeometry(0.44, 32), new THREE.MeshStandardMaterial({ color: 0xefd5b3, roughness: 0.2 }));
-        headAv.position.y = 1.02;
-        headAv.castShadow = true;
-        avatar.add(headAv);
-        const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.68, 0.82, 0.16, 12), new THREE.MeshStandardMaterial({ color: 0xc49a6c }));
-        hat.position.y = 1.26;
-        const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.48, 0.22, 8), new THREE.MeshStandardMaterial({ color: 0xb47c44 }));
-        hatTop.position.y = 1.38;
-        avatar.add(hat, hatTop);
-        avatar.position.set(3.2, -0.08, 2.2);
-        avatar.castShadow = true;
-        scene.add(avatar);
-        
-        // --- Home zone: cozy barn area ---
-        const homePoint = new THREE.Vector3(-6.2, 0.05, -3.8);
-        const barnMat = new THREE.MeshStandardMaterial({ color: 0xac8e68, roughness: 0.7 });
-        const barnBase = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.4, 2.2), barnMat);
-        barnBase.position.set(homePoint.x, 0.6, homePoint.z);
-        barnBase.castShadow = true;
-        scene.add(barnBase);
-        const roof = new THREE.Mesh(new THREE.ConeGeometry(1.5, 0.8, 4), new THREE.MeshStandardMaterial({ color: 0x8b5a2b }));
-        roof.rotation.y = Math.PI/4;
-        roof.position.set(homePoint.x, 1.25, homePoint.z);
-        roof.castShadow = true;
-        scene.add(roof);
-        const homeDiv = document.createElement('div');
-        homeDiv.textContent = '🏡 MY FARM • HOME 🏡';
-        homeDiv.style.backgroundColor = 'rgba(40,30,20,0.8)';
-        homeDiv.style.padding = '4px 14px';
-        homeDiv.style.borderRadius = '24px';
-        homeDiv.style.color = '#f7e05e';
-        const homeLabelCSS = new CSS2DObject(homeDiv);
-        homeLabelCSS.position.set(homePoint.x, 1.2, homePoint.z);
-        scene.add(homeLabelCSS);
-        
-        // --- Dynamic Lighting (realistic) ---
-        const ambientLight = new THREE.AmbientLight(0x40406b, 0.55);
-        scene.add(ambientLight);
-        const mainLight = new THREE.DirectionalLight(0xfff5e0, 1.3);
-        mainLight.position.set(5, 9, 4);
-        mainLight.castShadow = true;
-        mainLight.shadow.mapSize.width = 2048;
-        mainLight.shadow.mapSize.height = 2048;
-        mainLight.shadow.camera.near = 0.5;
-        mainLight.shadow.camera.far = 25;
-        mainLight.shadow.camera.left = -8;
-        mainLight.shadow.camera.right = 8;
-        mainLight.shadow.camera.top = 8;
-        mainLight.shadow.camera.bottom = -8;
-        scene.add(mainLight);
-        const fillLight = new THREE.PointLight(0xccaa88, 0.55);
-        fillLight.position.set(-2, 3.5, 2);
-        scene.add(fillLight);
-        const backRim = new THREE.PointLight(0xffaa77, 0.6);
-        backRim.position.set(0, 3, -5);
-        scene.add(backRim);
-        const stageLightSpot = new THREE.SpotLight(0xffcc88, 0.8);
-        stageLightSpot.position.set(0, 3, 1.2);
-        stageLightSpot.castShadow = true;
-        scene.add(stageLightSpot);
-        
-        // --- Auto Show State Machine ---
-        let showActive = false;
-        let currentStep = 0; // 0 idle, 1 walkToCow, 2 buyAnimate, 3 walkHome, 4 finish
-        let stepTimer = 0;
-        let cowOwned = false;
-        let cowFollowing = false;
-        const storyStatus = document.getElementById('storyStatus');
-        const playBtn = document.getElementById('playBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        
-        function fullReset() {
-            showActive = false;
-            currentStep = 0;
-            cowOwned = false;
-            cowFollowing = false;
-            cowGroup.position.set(0, 0.05, 0.3);
-            cowLabelDiv.textContent = '🐃 GORU • PRICE 80💰';
-            avatar.position.set(3.2, -0.08, 2.2);
-            storyStatus.innerHTML = '✨ RESET | PRESS PLAY ✨';
-            tvTextDiv.textContent = '🐄 GORU MARKET • LIVE AUCTION 🐄';
-            document.getElementById('audienceDisplay').innerHTML = '👥 SPECTATORS: 100';
-            controls.target.set(0, 1.8, 0);
-        }
-        
-        function startShow() {
-            if (showActive) return;
-            fullReset();
-            showActive = true;
-            currentStep = 1;
-            stepTimer = 0;
-            storyStatus.innerHTML = '🎬 CINEMATIC: APPROACHING GORU...';
-            tvTextDiv.textContent = '🌟 AUTO SHOW • COW ADVENTURE 🌟';
-            document.getElementById('audienceDisplay').innerHTML = '👥 SPECTATORS: 100 🎉';
-        }
-        
-        // Update movement and logic
-        let lastFrame = performance.now();
-        function updateAuto(delta) {
-            if (!showActive) return;
-            const speed = 2.7;
-            stepTimer += delta;
+        function loopAction() {
+            // Trigger Animation
+            cow.style.animation = 'none';
+            void cow.offsetWidth; 
+            cow.style.animation = 'jump 0.8s ease-in-out';
             
-            if (currentStep === 1) { // walk to cow
-                const targetPos = new THREE.Vector3(0, -0.08, 0.4);
-                const dir = new THREE.Vector3().subVectors(targetPos, avatar.position);
-                if (dir.length() > 0.2) {
-                    dir.normalize();
-                    avatar.position.x += dir.x * speed * delta;
-                    avatar.position.z += dir.z * speed * delta;
-                    avatar.rotation.y = Math.atan2(dir.x, dir.z);
-                } else {
-                    currentStep = 2;
-                    stepTimer = 0;
-                    storyStatus.innerHTML = '💰 BUYING GORU...';
+            // Trigger Speech
+            bubble.style.visibility = 'visible';
+            const utterance = new SpeechSynthesisUtterance(fullText);
+            
+            let wordIndex = 0;
+            utterance.onboundary = (event) => {
+                if (event.name === 'word') {
+                    bubble.innerText = words.slice(0, wordIndex + 1).join(" ");
+                    wordIndex++;
                 }
-            } 
-            else if (currentStep === 2) {
-                if (stepTimer > 1.0) {
-                    cowOwned = true;
-                    cowFollowing = true;
-                    cowLabelDiv.textContent = '🐄 YOUR GORU (FOLLOWING)';
-                    storyStatus.innerHTML = '✅ GORU BOUGHT! HEADING HOME!';
-                    currentStep = 3;
-                    stepTimer = 0;
-                } else {
-                    const bounce = Math.sin(stepTimer * 18) * 0.045;
-                    cowGroup.position.y = 0.05 + bounce;
-                    avatar.position.y = -0.08 + Math.sin(stepTimer * 20) * 0.01;
-                }
-            }
-            else if (currentStep === 3) {
-                const homeTarget = new THREE.Vector3(homePoint.x, -0.08, homePoint.z);
-                const dirHome = new THREE.Vector3().subVectors(homeTarget, avatar.position);
-                if (dirHome.length() > 0.5) {
-                    dirHome.normalize();
-                    avatar.position.x += dirHome.x * speed * delta;
-                    avatar.position.z += dirHome.z * speed * delta;
-                    avatar.rotation.y = Math.atan2(dirHome.x, dirHome.z);
-                    if (cowFollowing) {
-                        const followOffset = new THREE.Vector3(-1.1, 0, -0.8);
-                        const targetCow = avatar.position.clone().add(followOffset);
-                        const cowDir = new THREE.Vector3().subVectors(targetCow, cowGroup.position);
-                        if (cowDir.length() > 0.3) {
-                            cowDir.normalize();
-                            cowGroup.position.x += cowDir.x * speed * delta;
-                            cowGroup.position.z += cowDir.z * speed * delta;
-                        }
-                        cowGroup.rotation.y = Math.atan2(avatar.position.x - cowGroup.position.x, avatar.position.z - cowGroup.position.z);
-                    }
-                } else {
-                    currentStep = 4;
-                    cowFollowing = false;
-                    cowGroup.position.copy(homePoint);
-                    cowGroup.position.y = 0.1;
-                    cowLabelDiv.textContent = '🐄 GORU • AT HOME';
-                    storyStatus.innerHTML = '🏆 SHOW COMPLETE! GORU SAFE AT HOME! 🏆';
-                    tvTextDiv.textContent = '🎉 SUCCESS! COW ADOPTED! 🎉';
-                    showActive = false;
-                }
-            }
-            // Idle bounce effects
-            if (cowFollowing && showActive) cowGroup.position.y = 0.1 + Math.sin(Date.now() * 0.015) * 0.025;
-            if (showActive) avatar.position.y = -0.08 + Math.sin(Date.now() * 0.012) * 0.008;
+            };
+            
+            utterance.onend = () => {
+                bubble.style.visibility = 'hidden';
+                // Wait 2 seconds, then go again
+                setTimeout(loopAction, 2000);
+            };
+
+            window.speechSynthesis.speak(utterance);
         }
-        
-        // Cinematic Camera Tracking
-        function updateCamera() {
-            if (!showActive) {
-                controls.target.lerp(new THREE.Vector3(0, 1.6, 0), 0.05);
-                controls.update();
-                return;
-            }
-            const focus = avatar.position.clone();
-            focus.y += 0.9;
-            controls.target.lerp(focus, 0.09);
-            let idealPos;
-            if (currentStep === 1 || currentStep === 2) idealPos = new THREE.Vector3(focus.x + 3.2, focus.y + 2.2, focus.z + 4.2);
-            else idealPos = new THREE.Vector3(focus.x - 2.8, focus.y + 2.4, focus.z + 5);
-            camera.position.lerp(idealPos, 0.08);
-            controls.update();
-        }
-        
-        // Audience subtle movement
-        let timeAnim = 0;
-        function animateAudience() {
-            timeAnim += 0.02;
-            let idx = 0;
-            audienceGroup.children.forEach(child => {
-                if (child.geometry && child.geometry.type === 'SphereGeometry') {
-                    const wave = Math.sin(timeAnim * 2.5 + idx) * 0.008;
-                    child.position.y = 0.85 + wave;
-                    idx++;
-                }
-            });
-        }
-        
-        // Animation Loop
-        let previousTime = performance.now();
-        function mainLoop() {
-            const now = performance.now();
-            let delta = Math.min(0.033, (now - previousTime) / 1000);
-            previousTime = now;
-            updateAuto(delta);
-            updateCamera();
-            animateAudience();
-            // idle cow visual
-            if (!showActive && !cowOwned) cowGroup.position.y = 0.05 + Math.sin(now * 0.004) * 0.03;
-            renderer.render(scene, camera);
-            labelRenderer.render(scene, camera);
-            requestAnimationFrame(mainLoop);
-        }
-        
-        playBtn.addEventListener('click', startShow);
-        resetBtn.addEventListener('click', () => { fullReset(); showActive = false; currentStep = 0; });
-        fullReset();
-        mainLoop();
-        
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        });
         // Redirects to the destination URL after 3 seconds (3000 milliseconds)
 setTimeout(function() {
-    window.location.href = "wow2.html";
-}, 18000);
+    window.location.href = "https://example.com";
+}, 7000);
 
     </script>
+    <style>
+        @keyframes jump {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-150px) rotate(-10deg); }
+            100% { transform: translateY(0); }
+        }
+    </style>
 </body>
 </html>
