@@ -1,1 +1,565 @@
 
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🍖 গরুর মাংস রান্না - সম্পূর্ণ অটো শো (সঠিক পজিশন)</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+  }
+  body {
+    background: #0a0a0f;
+    overflow: hidden;
+    font-family: 'Segoe UI', 'Poppins', 'Arial', sans-serif;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  #controls {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 30;
+    pointer-events: none;
+  }
+  .button-group {
+    display: inline-flex;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    padding: 8px 20px;
+    border-radius: 60px;
+    border: 1px solid rgba(255, 180, 50, 0.6);
+    pointer-events: auto;
+  }
+  button {
+    background: linear-gradient(135deg, #e67e22, #d35400);
+    border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 6px 20px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-family: monospace;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  button:hover {
+    transform: scale(1.02);
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+  }
+  #resetBtn {
+    background: linear-gradient(135deg, #2c3e50, #1a252f);
+  }
+  .status {
+    background: rgba(0,0,0,0.7);
+    padding: 5px 15px;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    color: #ffdd99;
+    margin-left: 12px;
+    display: inline-block;
+    font-family: monospace;
+  }
+  .title-badge {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    padding: 5px 16px;
+    border-radius: 40px;
+    color: #ffaa44;
+    font-weight: bold;
+    font-size: 0.85rem;
+    z-index: 30;
+    pointer-events: none;
+    font-family: monospace;
+    border-left: 3px solid #ff8844;
+  }
+  .episode-tag {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    background: rgba(180, 40, 40, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 4px 14px;
+    border-radius: 40px;
+    color: #fff0b5;
+    font-weight: bold;
+    font-size: 0.8rem;
+    z-index: 30;
+    pointer-events: none;
+    font-family: monospace;
+  }
+  @media (max-width: 700px) {
+    button { padding: 4px 12px; font-size: 0.7rem; }
+    .status { font-size: 0.65rem; }
+    .title-badge { font-size: 0.7rem; top: 12px; left: 12px; }
+    .episode-tag { font-size: 0.65rem; top: 12px; right: 12px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="kitchenCanvas"></canvas>
+<div id="controls">
+  <div class="button-group">
+    <button id="playBtn">▶ শুরু করো (START SHOW)</button>
+    <button id="resetBtn">⟳ রিসেট (RESET)</button>
+    <div class="status" id="stepStatus">🍽️ রান্না শুরু হয়নি</div>
+  </div>
+</div>
+<div class="title-badge">🍖 গরু হাট কিচেন • সম্পূর্ণ অটো শো</div>
+<div class="episode-tag" id="episodeBadge">পর্ব ১: প্রস্তুতি</div>
+
+<script>
+  (function() {
+    const canvas = document.getElementById('kitchenCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', () => { resizeCanvas(); drawImmediate(); });
+    resizeCanvas();
+    
+    let W = () => canvas.width;
+    let H = () => canvas.height;
+    
+    // Scene Sequence
+    const SCENES = [
+      { name: 'meat-prep',  title: '🔪 মাংস প্রস্তুত করা হচ্ছে',    ep: 'পর্ব ১', dur: 380 },
+      { name: 'fire-start', title: '🔥 চুলা জ্বালানো হচ্ছে',        ep: 'পর্ব ২', dur: 320 },
+      { name: 'cooking',    title: '🥘 ভুনা হচ্ছে — মশলায় মশলায়',  ep: 'পর্ব ৩', dur: 480 },
+      { name: 'spices',     title: '🌶️ মশলা দেওয়া হচ্ছে',          ep: 'পর্ব ৪', dur: 400 },
+      { name: 'simmer',     title: '🍲 মাংস সিদ্ধ হচ্ছে',            ep: 'পর্ব ৫', dur: 450 },
+      { name: 'plate',      title: '🍽️ পরিবেশন করা হচ্ছে',           ep: 'পর্ব ৬', dur: 360 },
+      { name: 'eat',        title: '😋 আহারে বসেছে',                 ep: 'পর্ব ৭', dur: 480 },
+      { name: 'finish',     title: '🎉 আলহামদুলিল্লাহ! সম্পন্ন',     ep: 'পর্ব ৮', dur: 400 }
+    ];
+    
+    let currentSceneIdx = 0;
+    let sceneTimer = 0;
+    let globalFrame = 0;
+    let isActive = false;
+    let isTransitioning = false;
+    let transitionAlpha = 0;
+    
+    const stepStatusDiv = document.getElementById('stepStatus');
+    const episodeBadge = document.getElementById('episodeBadge');
+    const playBtn = document.getElementById('playBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    
+    function curScene() { return SCENES[currentSceneIdx]; }
+    
+    function updateUI() {
+      if (isActive) {
+        stepStatusDiv.innerHTML = `📺 চলছে: ${curScene().title}`;
+        episodeBadge.innerHTML = curScene().ep;
+      } else {
+        stepStatusDiv.innerHTML = `⏸️ থেমে আছে | PLAY চাপুন`;
+        episodeBadge.innerHTML = `পর্ব সমাপ্ত`;
+      }
+    }
+    
+    // Particles
+    let particles = [];
+    function spawnParticle(x, y, opts = {}) {
+      particles.push({
+        x, y,
+        vx: opts.vx || (Math.random() - 0.5) * 1.2,
+        vy: opts.vy || -1,
+        life: opts.life || 55,
+        maxLife: opts.life || 55,
+        color: opts.color || '#ffaa66',
+        size: opts.size || 4,
+        type: opts.type || 'circle',
+        gravity: opts.gravity || 0,
+        char: opts.char || '✨',
+        spin: opts.spin || 0,
+        spinV: opts.spinV || 0
+      });
+    }
+    
+    function updateParticles() {
+      for (let i = particles.length-1; i >= 0; i--) {
+        let p = particles[i];
+        p.life--;
+        if (p.life <= 0) { particles.splice(i,1); continue; }
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.spin += p.spinV;
+      }
+    }
+    
+    function drawParticles() {
+      for (let p of particles) {
+        ctx.save();
+        let alpha = Math.min(1, p.life / (p.maxLife * 0.6));
+        ctx.globalAlpha = alpha * 0.85;
+        if (p.type === 'steam') {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * (1 - p.life/p.maxLife)*1.2, 0, Math.PI*2);
+          ctx.fill();
+        } else if (p.type === 'fire') {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * (0.6 + 0.4 * (p.life/p.maxLife)), 0, Math.PI*2);
+          ctx.fill();
+        } else if (p.type === 'bubble') {
+          ctx.strokeStyle = p.color;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+          ctx.stroke();
+        } else if (p.type === 'star') {
+          ctx.font = `${p.size}px "Segoe UI", Arial`;
+          ctx.fillStyle = p.color;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(p.char, p.x, p.y);
+        } else if (p.type === 'spice') {
+          ctx.fillStyle = p.color;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.spin);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size*0.6, 0, 0, Math.PI*2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+    
+    // Drawing Helpers
+    function roundRect(x, y, w, h, r, fill, stroke, sw=1) {
+      ctx.beginPath();
+      ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y);
+      ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+      ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+      ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+      ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+      ctx.closePath();
+      if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+      if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = sw; ctx.stroke(); }
+    }
+    
+    function drawKitchenBackground() {
+      let w = W(), h = H();
+      let gradWall = ctx.createLinearGradient(0,0,0,h*0.65);
+      gradWall.addColorStop(0,'#F5E6C8');
+      gradWall.addColorStop(1,'#EDD9A3');
+      ctx.fillStyle = gradWall;
+      ctx.fillRect(0,0,w,h*0.65);
+      ctx.strokeStyle = 'rgba(180,150,80,0.25)';
+      ctx.lineWidth = 0.8;
+      for(let tx=0;tx<w;tx+=42) { ctx.beginPath(); ctx.moveTo(tx,0); ctx.lineTo(tx,h*0.65); ctx.stroke(); }
+      for(let ty=0;ty<h*0.65;ty+=42) { ctx.beginPath(); ctx.moveTo(0,ty); ctx.lineTo(w,ty); ctx.stroke(); }
+      let floorGrad = ctx.createLinearGradient(0,h*0.65,0,h);
+      floorGrad.addColorStop(0,'#B08850');
+      floorGrad.addColorStop(1,'#8B6835');
+      ctx.fillStyle = floorGrad;
+      ctx.fillRect(0,h*0.65,w,h*0.35);
+      ctx.strokeStyle = 'rgba(100,70,20,0.2)';
+      for(let tx=0;tx<w;tx+=55) { ctx.beginPath(); ctx.moveTo(tx,h*0.65); ctx.lineTo(tx,h); ctx.stroke(); }
+      let ctrY = h*0.65;
+      roundRect(0,ctrY-18,w,24,'#8B6835',null,'#6D4C41',1.2);
+      ctx.fillStyle = '#A0856A';
+      ctx.fillRect(0,ctrY-18,w,10);
+      let winW = w*0.2, winH = h*0.28, winX = w*0.72, winY = 35;
+      roundRect(winX,winY,winW,winH,6,'#87CEEB','#8D6E63',2.5);
+      ctx.strokeStyle = '#8D6E63';
+      ctx.beginPath(); ctx.moveTo(winX+winW/2,winY); ctx.lineTo(winX+winW/2,winY+winH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(winX,winY+winH/2); ctx.lineTo(winX+winW,winY+winH/2); ctx.stroke();
+      ctx.fillStyle = 'rgba(220,60,40,0.65)';
+      ctx.beginPath(); ctx.moveTo(winX,winY); ctx.lineTo(winX+winW*0.25,winY); ctx.lineTo(winX+winW*0.15,winY+winH); ctx.lineTo(winX,winY+winH); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(winX+winW,winY); ctx.lineTo(winX+winW*0.75,winY); ctx.lineTo(winX+winW*0.85,winY+winH); ctx.lineTo(winX+winW,winY+winH); ctx.fill();
+      ctx.fillStyle = '#fff';
+      roundRect(w*0.05,30,65,65,4,'#fff','#BDBDBD',1);
+      ctx.fillStyle = '#E53935'; ctx.fillRect(w*0.05,30,65,18);
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Arial'; ctx.textAlign = 'center';
+      ctx.fillText('ঈদ মোবারক', w*0.05+32, 43);
+      ctx.fillStyle = '#333'; ctx.font = 'bold 20px Arial'; ctx.fillText('🌙', w*0.05+32, 72);
+    }
+    
+    function drawStove(x, y, lit, intensity=1) {
+      roundRect(x-85,y-28,170,44,8,'#546E7A','#37474F',2);
+      ctx.fillStyle = '#455A64'; ctx.fillRect(x-80,y-24,160,18);
+      ctx.strokeStyle = '#37474F'; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.arc(x, y, 30, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, 20, 0, Math.PI*2); ctx.stroke();
+      if(lit) {
+        for(let f=0; f<8; f++) {
+          let angle = (f/8)*Math.PI*2;
+          let fx = x+Math.cos(angle)*20, fy = y+Math.sin(angle)*8;
+          let flameH = 16+Math.sin(globalFrame*0.18+f)*7;
+          let flameW = 6+Math.sin(globalFrame*0.12+f)*3;
+          let grad = ctx.createRadialGradient(fx, fy-flameH/2, 2, fx, fy, flameH);
+          grad.addColorStop(0, `rgba(255,200,0,${0.9*intensity})`);
+          grad.addColorStop(0.5, `rgba(255,80,0,${0.7*intensity})`);
+          grad.addColorStop(1, 'rgba(255,0,0,0)');
+          ctx.fillStyle = grad;
+          ctx.beginPath(); ctx.ellipse(fx, fy-flameH*0.4, flameW, flameH/2, 0, 0, Math.PI*2); ctx.fill();
+        }
+        if(globalFrame%3===0) {
+          spawnParticle(x+(Math.random()-0.5)*25, y-5, { vx:(Math.random()-0.5)*1.2, vy:-(Math.random()*2+1.2), color:'#FF6F00', size:2+Math.random()*5, life:25, type:'fire', gravity:0.05 });
+        }
+      }
+    }
+    
+    function drawPot(x, y, hasContent, contentColor, bubbling, items=[]) {
+      ctx.fillStyle = '#5D4037';
+      [-65,65].forEach(dx => { ctx.beginPath(); ctx.ellipse(x+dx, y-12, 12, 7, 0, 0, Math.PI*2); ctx.fill(); });
+      let grad = ctx.createLinearGradient(x-65, y-18, x+65, y-18);
+      grad.addColorStop(0,'#37474F'); grad.addColorStop(0.5,'#546E7A'); grad.addColorStop(1,'#37474F');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.moveTo(x-65, y-18); ctx.lineTo(x-60, y+50); ctx.lineTo(x+60, y+50); ctx.lineTo(x+65, y-18); ctx.fill();
+      if(hasContent) {
+        ctx.fillStyle = contentColor;
+        ctx.beginPath(); ctx.moveTo(x-62, y-10); ctx.lineTo(x-59, y+44); ctx.lineTo(x+59, y+44); ctx.lineTo(x+62, y-10); ctx.fill();
+        items.forEach(item => {
+          ctx.save(); ctx.translate(item.x, item.y); ctx.rotate(item.rot||0);
+          if(item.type==='meat'){ ctx.fillStyle='#7B3B1A'; ctx.fillRect(-item.s,-item.s*0.5,item.s*2,item.s); }
+          if(item.type==='spice'){ ctx.fillStyle=item.color||'#C62828'; ctx.beginPath(); ctx.ellipse(0,0,item.s,item.s*0.5,0,0,Math.PI*2); ctx.fill(); }
+          ctx.restore();
+        });
+        if(bubbling && globalFrame%5===0) {
+          spawnParticle(x+(Math.random()-0.5)*90, y-5, { vx:(Math.random()-0.5)*0.7, vy:-(Math.random()*1.5+0.5), color:'rgba(255,180,100,0.7)', size:3+Math.random()*5, life:25, type:'bubble' });
+        }
+      }
+      ctx.fillStyle = '#455A64';
+      ctx.beginPath(); ctx.ellipse(x, y-18, 68, 12, 0, 0, Math.PI*2); ctx.fill();
+      if(bubbling) {
+        let lidY = y-27+Math.sin(globalFrame*0.12)*2.5;
+        ctx.fillStyle = '#546E7A';
+        ctx.beginPath(); ctx.ellipse(x, lidY, 63, 11, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#5D4037'; ctx.beginPath(); ctx.ellipse(x, lidY-7, 8, 4, 0, 0, Math.PI*2); ctx.fill();
+        if(globalFrame%5===0) spawnParticle(x+(Math.random()-0.5)*50, lidY-12, { vx:(Math.random()-0.5)*0.6, vy:-(Math.random()*1.5+0.4), color:'rgba(220,220,200,0.5)', size:5+Math.random()*9, life:45, type:'steam', gravity:-0.008 });
+      }
+    }
+    
+    // CHEF - properly positioned near stove (x offset relative to stove)
+    function drawChef(x, y, action='idle') {
+      ctx.save(); ctx.translate(x, y);
+      ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.beginPath(); ctx.ellipse(0, 3, 22, 6, 0, 0, Math.PI*2); ctx.fill();
+      [[-10,0],[10,0]].forEach(([lx]) => { ctx.fillStyle='#1A237E'; ctx.fillRect(lx-6, -8, 12, 38); ctx.fillStyle='#111'; ctx.fillRect(lx-8, 28, 16, 7); });
+      ctx.fillStyle = '#E3F2FD'; ctx.fillRect(-20, -68, 40, 62);
+      ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.beginPath(); ctx.moveTo(-12,-68); ctx.lineTo(12,-68); ctx.lineTo(16,-10); ctx.lineTo(-16,-10); ctx.fill();
+      // Left arm
+      ctx.save(); ctx.translate(-22, -62); ctx.rotate(action==='stir'?Math.sin(globalFrame*0.12)*0.5+0.2: action==='cut'?Math.sin(globalFrame*0.18)*0.4:-0.1);
+      ctx.fillStyle='#E3F2FD'; ctx.fillRect(-5,0,10,32); ctx.fillStyle='#FFCC80'; ctx.beginPath(); ctx.arc(0,34,7,0,Math.PI*2); ctx.fill();
+      if(action==='stir') { ctx.strokeStyle='#5D4037'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(0,34); ctx.lineTo(-5,58); ctx.stroke(); ctx.fillStyle='#795548'; ctx.fillRect(-9,53,8,14); }
+      ctx.restore();
+      // Right arm
+      ctx.save(); ctx.translate(22, -62); ctx.rotate(action==='cut'?-Math.sin(globalFrame*0.2)*0.5-0.2:action==='eat'?Math.sin(globalFrame*0.15)*0.4+0.5:0.1);
+      ctx.fillStyle='#E3F2FD'; ctx.fillRect(-5,0,10,32); ctx.fillStyle='#FFCC80'; ctx.beginPath(); ctx.arc(0,34,7,0,Math.PI*2); ctx.fill();
+      if(action==='cut'){ ctx.fillStyle='#BDBDBD'; ctx.fillRect(-3,34,6,18); ctx.fillStyle='#795548'; ctx.fillRect(-5,50,10,8); }
+      if(action==='eat'){ ctx.strokeStyle='#BDBDBD'; ctx.beginPath(); ctx.moveTo(0,34); ctx.lineTo(-8,18); ctx.stroke(); ctx.fillStyle='#8B4513'; ctx.beginPath(); ctx.arc(-8,14,5,0,Math.PI*2); ctx.fill(); }
+      ctx.restore();
+      ctx.fillStyle='#FFCC80'; ctx.fillRect(-6, -74, 12, 12);
+      ctx.fillStyle='#FFE0B2'; ctx.beginPath(); ctx.ellipse(0, -90, 20, 22, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='#1a0800'; ctx.beginPath(); ctx.ellipse(0, -104, 19, 11, 0, Math.PI, 0); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(0, -112, 24, 7, 0, Math.PI, 0); ctx.fill(); ctx.fillRect(-16, -130, 32, 20);
+      ctx.fillStyle='black'; ctx.beginPath(); ctx.ellipse(-7,-92,3,3.5,0,0,Math.PI*2); ctx.ellipse(7,-92,3,3.5,0,0,Math.PI*2); ctx.fill();
+      if(action==='eat'){ ctx.strokeStyle='#1a0800'; ctx.beginPath(); ctx.arc(0,-85,8,0.1,Math.PI-0.1); ctx.stroke(); ctx.fillStyle='#E57373'; ctx.beginPath(); ctx.ellipse(0,-84,6,Math.abs(Math.sin(globalFrame*0.2))*5+1,0,0,Math.PI*2); ctx.fill(); }
+      else { ctx.beginPath(); ctx.arc(0,-86,7,0.1,Math.PI-0.1); ctx.stroke(); }
+      ctx.restore();
+    }
+    
+    function drawPlate(x,y) {
+      ctx.fillStyle='rgba(0,0,0,0.1)'; ctx.beginPath(); ctx.ellipse(x,y+5,70,14,0,0,Math.PI*2); ctx.fill();
+      let grad = ctx.createRadialGradient(x,y,10,x,y,65);
+      grad.addColorStop(0,'#FFFDE7'); grad.addColorStop(1,'#FFF8E1');
+      ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(x,y,65,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#E0E0E0'; ctx.lineWidth=2; ctx.stroke();
+      for(let i=0;i<5;i++) {
+        ctx.fillStyle=['#7B3B1A','#8B4513','#6D2B0A'][i%3];
+        ctx.beginPath(); ctx.ellipse(x-20+ i*15, y-10+ (i%2)*5, 10, 7, 0, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.fillStyle='#2E7D32'; ctx.font='20px Arial'; ctx.fillText('🌿', x+30, y-20);
+    }
+    
+    // --- SCENE RENDERERS with CORRECT POSITIONS (chef next to stove) ---
+    function renderMeatPrep() { 
+      let w=W(), h=H(); 
+      drawKitchenBackground(); 
+      roundRect(w*0.35, h*0.52, 200, 55, 6, '#D7CCC8', '#8D6E63', 2); 
+      // Cutting board area - chef at cutting board (left side)
+      drawChef(w*0.32, h*0.62, 'cut'); 
+      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.font='bold 14px Arial'; ctx.textAlign='center';
+      ctx.fillText('মাংস কাটা হচ্ছে 🔪', w/2, h*0.92); 
+    }
+    
+    function renderFireStart() { 
+      let w=W(), h=H(); 
+      drawKitchenBackground(); 
+      let stoveX = w*0.55, stoveY = h*0.65;
+      drawStove(stoveX, stoveY, true, 1); 
+      // Chef RIGHT NEXT to stove (stove at x=0.55w, chef at x=0.72w = close)
+      drawChef(stoveX + 75, stoveY - 8, 'idle'); 
+      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillText('চুলা জ্বলছে 🔥', w/2, h*0.92); 
+    }
+    
+    function renderCooking() { 
+      let w=W(), h=H(); 
+      drawKitchenBackground(); 
+      let stoveX = w*0.55, stoveY = h*0.65;
+      drawStove(stoveX, stoveY, true, 0.9); 
+      drawPot(stoveX, stoveY-8, true, '#8B4513', false, []); 
+      // Chef standing right beside the pot/stove
+      drawChef(stoveX + 75, stoveY - 8, 'stir'); 
+      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillText('কড়াইতে মাংস ভাজা হচ্ছে', w/2, h*0.92); 
+    }
+    
+    function renderSpices() { 
+      let w=W(), h=H(); 
+      drawKitchenBackground(); 
+      let stoveX = w*0.55, stoveY = h*0.65;
+      drawStove(stoveX, stoveY, true, 1); 
+      drawPot(stoveX, stoveY-8, true, '#7B3B1A', false, []); 
+      drawChef(stoveX + 75, stoveY - 8, 'stir'); 
+      if(globalFrame%5===0) spawnParticle(stoveX+20+Math.random()*40, stoveY-25, { color:'#C62828', size:2, life:20, type:'spice', vx:(Math.random()-0.5)*1, vy:-0.5 });
+      ctx.fillText('মশলা দেওয়া হচ্ছে 🌶️', w/2, h*0.92); 
+    }
+    
+    function renderSimmer() { 
+      let w=W(), h=H(); 
+      drawKitchenBackground(); 
+      let stoveX = w*0.55, stoveY = h*0.65;
+      drawStove(stoveX, stoveY, true, 0.7); 
+      drawPot(stoveX, stoveY-8, true, '#6D2A0A', true, []); 
+      drawChef(stoveX + 75, stoveY - 8, 'stir'); 
+      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillText('রান্না হচ্ছে... মাংস সিদ্ধ হচ্ছে 🍲', w/2, h*0.92); 
+    }
+    
+    function renderPlate() { 
+      let w=W(), h=H(); 
+      drawKitchenBackground(); 
+      drawPlate(w*0.35, h*0.55); 
+      let stoveX = w*0.55, stoveY = h*0.65;
+      drawPot(stoveX, stoveY-8, true, '#6D2A0A', false, []); 
+      drawChef(stoveX + 75, stoveY - 8, 'idle'); 
+      ctx.fillText('পরিবেশন করা হচ্ছে 🍽️', w/2, h*0.92); 
+    }
+    
+    function renderEat() { 
+      let w=W(), h=H(); 
+      drawKitchenBackground(); 
+      drawPlate(w*0.45, h*0.55); 
+      // Chef sitting at the table (eating position)
+      drawChef(w*0.48, h*0.63, 'eat'); 
+      if(globalFrame%35===0) spawnParticle(w*0.4+Math.random()*50, h*0.4, { char:'😋', size:18, life:60, type:'star', color:'#FFD700', vx:(Math.random()-0.5)*0.8, vy:-1.2, gravity:-0.005 });
+      ctx.fillText('আহা! কী মজাদার গরুর মাংস 😋', w/2, h*0.92); 
+    }
+    
+    function renderFinish() { 
+      let w=W(), h=H(); 
+      drawKitchenBackground(); 
+      drawPlate(w*0.45, h*0.55); 
+      drawChef(w*0.48, h*0.63, 'eat'); 
+      if(globalFrame%25===0) spawnParticle(w*0.3+Math.random()*w*0.4, h*0.2, { char:'🎉', size:22, life:80, type:'star', color:'#FFAA33', vx:(Math.random()-0.5)*1.2, vy:-1.5 });
+      ctx.font='bold 36px Georgia'; ctx.fillStyle='#FFD600'; ctx.shadowBlur=12; ctx.fillText('আলহামদুলিল্লাহ! 🌙', w/2, h*0.25); 
+      ctx.shadowBlur=0; ctx.font='bold 18px Arial'; ctx.fillStyle='#E65100'; ctx.fillText('গরুর মাংস ভুনা তৈরি! 🍖', w/2, h*0.36); 
+    }
+    
+    function renderCurrentScene() {
+      let name = curScene().name;
+      if (name === 'meat-prep') renderMeatPrep();
+      else if (name === 'fire-start') renderFireStart();
+      else if (name === 'cooking') renderCooking();
+      else if (name === 'spices') renderSpices();
+      else if (name === 'simmer') renderSimmer();
+      else if (name === 'plate') renderPlate();
+      else if (name === 'eat') renderEat();
+      else if (name === 'finish') renderFinish();
+    }
+    
+    function transitionToNext() {
+      if (isTransitioning) return;
+      isTransitioning = true;
+      transitionAlpha = 0;
+      let fadeInterval = setInterval(() => {
+        transitionAlpha = Math.min(1, transitionAlpha + 0.08);
+        if (transitionAlpha >= 1) {
+          clearInterval(fadeInterval);
+          currentSceneIdx = (currentSceneIdx + 1) % SCENES.length;
+          sceneTimer = 0;
+          particles = [];
+          updateUI();
+          let fadeOut = setInterval(() => {
+            transitionAlpha = Math.max(0, transitionAlpha - 0.08);
+            if (transitionAlpha <= 0) { clearInterval(fadeOut); isTransitioning = false; }
+          }, 16);
+        }
+      }, 16);
+    }
+    
+    function fullReset() {
+      isActive = false;
+      currentSceneIdx = 0;
+      sceneTimer = 0;
+      globalFrame = 0;
+      particles = [];
+      isTransitioning = false;
+      transitionAlpha = 0;
+      updateUI();
+      drawImmediate();
+    }
+    
+    function startShow() {
+      if (isActive) return;
+      fullReset();
+      isActive = true;
+      currentSceneIdx = 0;
+      sceneTimer = 0;
+      updateUI();
+    }
+    
+    function drawImmediate() { if (!isActive && !isTransitioning) renderCurrentScene(); }
+    
+    function animate() {
+      if (!canvas || !ctx) return;
+      ctx.clearRect(0, 0, W(), H());
+      if (isActive) {
+        renderCurrentScene();
+        updateParticles();
+        drawParticles();
+        sceneTimer++;
+        if (sceneTimer >= curScene().dur && !isTransitioning) transitionToNext();
+      } else {
+        renderCurrentScene();
+        updateParticles();
+        drawParticles();
+      }
+      globalFrame++;
+      requestAnimationFrame(animate);
+    }
+    
+    playBtn.addEventListener('click', startShow);
+    resetBtn.addEventListener('click', () => { fullReset(); isActive = false; currentSceneIdx = 0; sceneTimer = 0; updateUI(); });
+    resizeCanvas();
+    animate();
+  })();
+</script>
+</body>
+</html>
