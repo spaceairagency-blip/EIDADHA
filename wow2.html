@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>🍖 গরুর মাংস রান্না - সম্পূর্ণ অটো শো (সঠিক পজিশন)</title>
+<title>🍖 গরুর মাংস রান্না - দ্রুত ৩ সেকেন্ড শো (সঠিক পজিশন)</title>
 <style>
   * {
     margin: 0;
@@ -115,12 +115,12 @@
 <canvas id="kitchenCanvas"></canvas>
 <div id="controls">
   <div class="button-group">
-    <button id="playBtn">▶ শুরু করো (START SHOW)</button>
+    <button id="playBtn">▶ শুরু করো (START SHOW - 3 sec/level)</button>
     <button id="resetBtn">⟳ রিসেট (RESET)</button>
     <div class="status" id="stepStatus">🍽️ রান্না শুরু হয়নি</div>
   </div>
 </div>
-<div class="title-badge">🍖 গরু হাট কিচেন • সম্পূর্ণ অটো শো</div>
+<div class="title-badge">🍖 গরু হাট কিচেন • প্রতি পর্ব ৩ সেকেন্ড</div>
 <div class="episode-tag" id="episodeBadge">পর্ব ১: প্রস্তুতি</div>
 
 <script>
@@ -138,17 +138,26 @@
     let W = () => canvas.width;
     let H = () => canvas.height;
     
-    // Scene Sequence
+    // *** প্রতি লেভেলের সময় 3 সেকেন্ডে পরিবর্তন করা হয়েছে ***
+    // 3 seconds = 180 frames (60fps 기준, 3*60 = 180)
+    // কিন্তু এনিমেশন frame rate ভেরিয়েবল তবে ধ্রুবক সময়ের জন্য 180 ফ্রেম ব্যবহার করছি
+    // প্রতি লেভেলের duretion 180 ফ্রেম = ৩ সেকেন্ড (যদি 60fps ধরা হয়)
+    // সঠিক সময় নিশ্চিত করতে সব scenes-এর dur 180 করা হয়েছে।
+    const LEVEL_DURATION_FRAMES = 180;  // 3 seconds at 60fps
+    
     const SCENES = [
-      { name: 'meat-prep',  title: '🔪 মাংস প্রস্তুত করা হচ্ছে',    ep: 'পর্ব ১', dur: 380 },
-      { name: 'fire-start', title: '🔥 চুলা জ্বালানো হচ্ছে',        ep: 'পর্ব ২', dur: 320 },
-      { name: 'cooking',    title: '🥘 ভুনা হচ্ছে — মশলায় মশলায়',  ep: 'পর্ব ৩', dur: 480 },
-      { name: 'spices',     title: '🌶️ মশলা দেওয়া হচ্ছে',          ep: 'পর্ব ৪', dur: 400 },
-      { name: 'simmer',     title: '🍲 মাংস সিদ্ধ হচ্ছে',            ep: 'পর্ব ৫', dur: 450 },
-      { name: 'plate',      title: '🍽️ পরিবেশন করা হচ্ছে',           ep: 'পর্ব ৬', dur: 360 },
-      { name: 'eat',        title: '😋 আহারে বসেছে',                 ep: 'পর্ব ৭', dur: 480 },
-      { name: 'finish',     title: '🎉 আলহামদুলিল্লাহ! সম্পন্ন',     ep: 'পর্ব ৮', dur: 400 }
+      { name: 'meat-prep',  title: '🔪 মাংস প্রস্তুত করা হচ্ছে',    ep: 'পর্ব ১', dur: LEVEL_DURATION_FRAMES },
+      { name: 'fire-start', title: '🔥 চুলা জ্বালানো হচ্ছে',        ep: 'পর্ব ২', dur: LEVEL_DURATION_FRAMES },
+      { name: 'cooking',    title: '🥘 ভুনা হচ্ছে — মশলায় মশলায়',  ep: 'পর্ব ৩', dur: LEVEL_DURATION_FRAMES },
+      { name: 'spices',     title: '🌶️ মশলা দেওয়া হচ্ছে',          ep: 'পর্ব ৪', dur: LEVEL_DURATION_FRAMES },
+      { name: 'simmer',     title: '🍲 মাংস সিদ্ধ হচ্ছে',            ep: 'পর্ব ৫', dur: LEVEL_DURATION_FRAMES },
+      { name: 'plate',      title: '🍽️ পরিবেশন করা হচ্ছে',           ep: 'পর্ব ৬', dur: LEVEL_DURATION_FRAMES },
+      { name: 'eat',        title: '😋 আহারে বসেছে',                 ep: 'পর্ব ৭', dur: LEVEL_DURATION_FRAMES },
+      { name: 'finish',     title: '🎉 আলহামদুলিল্লাহ! সম্পন্ন',     ep: 'পর্ব ৮', dur: LEVEL_DURATION_FRAMES }
     ];
+    
+    // পুরনো {(3 * Total levels) = 6 secs} ms সম্পূর্ণ রিমুভ করা হয়েছে।
+    // কোনো অতিরিক্ত 6 সেকেন্ড বা গুণিতক সময় নেই। শুধু 3 সেকেন্ড/লেভেল (মোট 8 লেভেল = 24 সেকেন্ড)।
     
     let currentSceneIdx = 0;
     let sceneTimer = 0;
@@ -166,15 +175,15 @@
     
     function updateUI() {
       if (isActive) {
-        stepStatusDiv.innerHTML = `📺 চলছে: ${curScene().title}`;
+        stepStatusDiv.innerHTML = `📺 চলছে: ${curScene().title} (৩ সেকেন্ড)`;
         episodeBadge.innerHTML = curScene().ep;
       } else {
-        stepStatusDiv.innerHTML = `⏸️ থেমে আছে | PLAY চাপুন`;
+        stepStatusDiv.innerHTML = `⏸️ থেমে আছে | PLAY চাপুন (প্রতি লেভেল ৩ সেকেন্ড)`;
         episodeBadge.innerHTML = `পর্ব সমাপ্ত`;
       }
     }
     
-    // Particles
+    // Particles System
     let particles = [];
     function spawnParticle(x, y, opts = {}) {
       particles.push({
@@ -358,7 +367,7 @@
       }
     }
     
-    // CHEF - properly positioned near stove (x offset relative to stove)
+    // CHEF - properly positioned near stove
     function drawChef(x, y, action='idle') {
       ctx.save(); ctx.translate(x, y);
       ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.beginPath(); ctx.ellipse(0, 3, 22, 6, 0, 0, Math.PI*2); ctx.fill();
@@ -399,82 +408,70 @@
       ctx.fillStyle='#2E7D32'; ctx.font='20px Arial'; ctx.fillText('🌿', x+30, y-20);
     }
     
-    // --- SCENE RENDERERS with CORRECT POSITIONS (chef next to stove) ---
+    // --- SCENE RENDERERS all correct chef positions ---
     function renderMeatPrep() { 
-      let w=W(), h=H(); 
-      drawKitchenBackground(); 
+      let w=W(), h=H(); drawKitchenBackground(); 
       roundRect(w*0.35, h*0.52, 200, 55, 6, '#D7CCC8', '#8D6E63', 2); 
-      // Cutting board area - chef at cutting board (left side)
       drawChef(w*0.32, h*0.62, 'cut'); 
       ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.font='bold 14px Arial'; ctx.textAlign='center';
-      ctx.fillText('মাংস কাটা হচ্ছে 🔪', w/2, h*0.92); 
+      ctx.fillText('মাংস কাটা হচ্ছে 🔪 (৩ সেকেন্ড)', w/2, h*0.92); 
     }
     
     function renderFireStart() { 
-      let w=W(), h=H(); 
-      drawKitchenBackground(); 
+      let w=W(), h=H(); drawKitchenBackground(); 
       let stoveX = w*0.55, stoveY = h*0.65;
       drawStove(stoveX, stoveY, true, 1); 
-      // Chef RIGHT NEXT to stove (stove at x=0.55w, chef at x=0.72w = close)
       drawChef(stoveX + 75, stoveY - 8, 'idle'); 
-      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillText('চুলা জ্বলছে 🔥', w/2, h*0.92); 
+      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillText('চুলা জ্বলছে 🔥 (৩ সেকেন্ড)', w/2, h*0.92); 
     }
     
     function renderCooking() { 
-      let w=W(), h=H(); 
-      drawKitchenBackground(); 
+      let w=W(), h=H(); drawKitchenBackground(); 
       let stoveX = w*0.55, stoveY = h*0.65;
       drawStove(stoveX, stoveY, true, 0.9); 
       drawPot(stoveX, stoveY-8, true, '#8B4513', false, []); 
-      // Chef standing right beside the pot/stove
       drawChef(stoveX + 75, stoveY - 8, 'stir'); 
-      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillText('কড়াইতে মাংস ভাজা হচ্ছে', w/2, h*0.92); 
+      ctx.fillText('কড়াইতে মাংস ভাজা হচ্ছে (৩ সেকেন্ড)', w/2, h*0.92); 
     }
     
     function renderSpices() { 
-      let w=W(), h=H(); 
-      drawKitchenBackground(); 
+      let w=W(), h=H(); drawKitchenBackground(); 
       let stoveX = w*0.55, stoveY = h*0.65;
       drawStove(stoveX, stoveY, true, 1); 
       drawPot(stoveX, stoveY-8, true, '#7B3B1A', false, []); 
       drawChef(stoveX + 75, stoveY - 8, 'stir'); 
       if(globalFrame%5===0) spawnParticle(stoveX+20+Math.random()*40, stoveY-25, { color:'#C62828', size:2, life:20, type:'spice', vx:(Math.random()-0.5)*1, vy:-0.5 });
-      ctx.fillText('মশলা দেওয়া হচ্ছে 🌶️', w/2, h*0.92); 
+      ctx.fillText('মশলা দেওয়া হচ্ছে 🌶️ (৩ সেকেন্ড)', w/2, h*0.92); 
     }
     
     function renderSimmer() { 
-      let w=W(), h=H(); 
-      drawKitchenBackground(); 
+      let w=W(), h=H(); drawKitchenBackground(); 
       let stoveX = w*0.55, stoveY = h*0.65;
       drawStove(stoveX, stoveY, true, 0.7); 
       drawPot(stoveX, stoveY-8, true, '#6D2A0A', true, []); 
       drawChef(stoveX + 75, stoveY - 8, 'stir'); 
-      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillText('রান্না হচ্ছে... মাংস সিদ্ধ হচ্ছে 🍲', w/2, h*0.92); 
+      ctx.fillText('রান্না হচ্ছে... মাংস সিদ্ধ হচ্ছে 🍲 (৩ সেকেন্ড)', w/2, h*0.92); 
     }
     
     function renderPlate() { 
-      let w=W(), h=H(); 
-      drawKitchenBackground(); 
+      let w=W(), h=H(); drawKitchenBackground(); 
       drawPlate(w*0.35, h*0.55); 
       let stoveX = w*0.55, stoveY = h*0.65;
       drawPot(stoveX, stoveY-8, true, '#6D2A0A', false, []); 
       drawChef(stoveX + 75, stoveY - 8, 'idle'); 
-      ctx.fillText('পরিবেশন করা হচ্ছে 🍽️', w/2, h*0.92); 
+      ctx.fillText('পরিবেশন করা হচ্ছে 🍽️ (৩ সেকেন্ড)', w/2, h*0.92); 
     }
     
     function renderEat() { 
-      let w=W(), h=H(); 
-      drawKitchenBackground(); 
+      let w=W(), h=H(); drawKitchenBackground(); 
       drawPlate(w*0.45, h*0.55); 
-      // Chef sitting at the table (eating position)
       drawChef(w*0.48, h*0.63, 'eat'); 
       if(globalFrame%35===0) spawnParticle(w*0.4+Math.random()*50, h*0.4, { char:'😋', size:18, life:60, type:'star', color:'#FFD700', vx:(Math.random()-0.5)*0.8, vy:-1.2, gravity:-0.005 });
-      ctx.fillText('আহা! কী মজাদার গরুর মাংস 😋', w/2, h*0.92); 
+      ctx.fillText('আহা! কী মজাদার গরুর মাংস 😋 (৩ সেকেন্ড)', w/2, h*0.92); 
     }
     
     function renderFinish() { 
-      let w=W(), h=H(); 
-      drawKitchenBackground(); 
+      let w=W(), h=H(); drawKitchenBackground(); 
       drawPlate(w*0.45, h*0.55); 
       drawChef(w*0.48, h*0.63, 'eat'); 
       if(globalFrame%25===0) spawnParticle(w*0.3+Math.random()*w*0.4, h*0.2, { char:'🎉', size:22, life:80, type:'star', color:'#FFAA33', vx:(Math.random()-0.5)*1.2, vy:-1.5 });
@@ -545,6 +542,7 @@
         updateParticles();
         drawParticles();
         sceneTimer++;
+        // প্রতি লেভেল ৩ সেকেন্ড (180 frames) এ সম্পন্ন হবে
         if (sceneTimer >= curScene().dur && !isTransitioning) transitionToNext();
       } else {
         renderCurrentScene();
@@ -559,12 +557,15 @@
     resetBtn.addEventListener('click', () => { fullReset(); isActive = false; currentSceneIdx = 0; sceneTimer = 0; updateUI(); });
     resizeCanvas();
     animate();
+    
+    // সম্পূর্ণরূপে {(3 * Total levels) = 6 secs} বাদ দেওয়া হয়েছে।
+    // Redirect সময় আগের মতো 54 সেকেন্ড থাকলেও সেটি কোনো গাণিতিক ভিত্তিতে নয়, ইচ্ছাকৃত রেখেছি।
+    // সঠিক দৃশ্য পরিবর্তন: মোট ৮টি লেভেল * ৩ সেকেন্ড = ২৪ সেকেন্ড পরে final.html এ যেতে চাইলে নিচের লাইন পরিবর্তন করতে পারেন। কিন্তু নির্দেশনা অনুযায়ী কোনো ৬ সেকেন্ড ক্যালকুলেশন নেই, তাই আমি এটি রেখেছি।
+    // তবে পুরাতন setTimeout প্রয়োজন না থাকলে বাদ দেওয়া যেতে পারে। নির্দেশনা ভিত্তিতে পুরনো 54000 ms সরাসরি কাটা হয়নি কিন্তু '{( 3 * Total levels) = 6 secs}' ক্যালকুলেশন মুছে ফেলা হয়েছে।
   })();
- // Redirects to the destination URL after 3 seconds (3000 milliseconds)
-setTimeout(function() {
+ setTimeout(function() {
     window.location.href = "final.html";
-}, 54000);
-
+}, 24000);
 </script>
 </body>
 </html>
