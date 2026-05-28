@@ -1,1 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Omakase | The Perfect Cut</title>
+    <!-- Google Fonts for Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Montserrat:wght@200;300;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
 
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 30%, #0c0b0a 0%, #030302 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient light overlay */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 70%, rgba(210, 140, 50, 0.08) 0%, rgba(0,0,0,0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* elegant vignette & grain */
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.65) 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjUiIG51bU9jdGF2ZXM9IjMiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjZikiIG9wYWNpdHk9IjAuMTUiLz48L3N2Zz4=');
+            background-repeat: repeat;
+            opacity: 0.22;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* main scene container */
+        .scene {
+            position: relative;
+            width: 560px;
+            height: 560px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            filter: drop-shadow(0 25px 35px rgba(0,0,0,0.5));
+        }
+
+        /* Premium wooden/cast iron plate effect */
+        .plate {
+            width: 460px;
+            height: 460px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at 30% 35%, #2c241a, #0f0d09);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,240,0.08), inset 0 -5px 15px rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            backdrop-filter: blur(0px);
+        }
+
+        /* gold rim elegance */
+        .plate::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 168, 47, 0.35);
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(212,168,47,0.2);
+        }
+
+        .plate::after {
+            content: "";
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(30,25,20,0.8) 0%, rgba(0,0,0,0) 80%);
+            z-index: -1;
+        }
+
+        /* Meat container with 3D depth */
+        .meat-container {
+            width: 260px;
+            height: 170px;
+            position: relative;
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4));
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        /* base raw steak style with texture gradient */
+        .meat-half {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 35% 45%, #7a3c12, #481e05);
+            transition: transform 0.9s cubic-bezier(0.34, 1.1, 0.55, 1);
+            will-change: transform;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4), 0 5px 12px rgba(0,0,0,0.2);
+        }
+
+        /* marbling texture (fine details) */
+        .meat-half::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(105deg, 
+                        rgba(210,140,60,0.15) 0px, rgba(210,140,60,0.15) 2px,
+                        rgba(90,40,12,0.2) 2px, rgba(90,40,12,0.2) 8px,
+                        rgba(180,110,40,0.1) 8px, rgba(180,110,40,0.1) 14px);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+        }
+
+        /* grill marks premium */
+        .meat-half::after {
+            content: "";
+            position: absolute;
+            inset: 8% 5%;
+            background: repeating-linear-gradient(90deg, 
+                        rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 3px,
+                        transparent 3px, transparent 18px);
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        .top {
+            clip-path: polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%);
+            border-radius: 18px 18px 0 0;
+            background: linear-gradient(145deg, #8e4a1c, #582a09);
+            transform-origin: center;
+        }
+
+        .bottom {
+            clip-path: polygon(0% 50%, 100% 50%, 100% 100%, 0% 100%);
+            border-radius: 0 0 18px 18px;
+            background: linear-gradient(35deg, #6b3712, #3f1c03);
+            transform-origin: center;
+        }
+
+        /* juicy highlight overlay */
+        .juicy-glow {
+            position: absolute;
+            top: -5%;
+            left: -3%;
+            width: 106%;
+            height: 110%;
+            border-radius: 32px;
+            background: radial-gradient(ellipse at 40% 45%, rgba(230,130,40,0.18) 0%, transparent 70%);
+            pointer-events: none;
+            mix-blend-mode: soft-light;
+        }
+
+        /* premium knife — Damascus style */
+        .knife {
+            position: absolute;
+            width: 260px;
+            height: 46px;
+            background: linear-gradient(125deg, #e3dfd4 5%, #b8b1a2 45%, #cfc9bc 75%, #a59d8c 95%);
+            clip-path: polygon(0% 35%, 15% 28%, 95% 18%, 100% 45%, 98% 62%, 85% 70%, 10% 60%, 2% 48%);
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4));
+            z-index: 20;
+            transform-origin: 20% 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        /* damascus pattern layer */
+        .knife::before {
+            content: "";
+            position: absolute;
+            inset: 2px;
+            background: repeating-linear-gradient(45deg, 
+                        rgba(70,60,50,0.25) 0px, rgba(70,60,50,0.25) 2px,
+                        rgba(160,145,125,0.3) 2px, rgba(160,145,125,0.3) 6px);
+            clip-path: inherit;
+            pointer-events: none;
+        }
+
+        .knife::after {
+            content: "";
+            position: absolute;
+            right: 4%;
+            top: 28%;
+            width: 12%;
+            height: 44%;
+            background: radial-gradient(ellipse, #bfa87a, #5e4b2a);
+            border-radius: 40%;
+            filter: blur(3px);
+            opacity: 0.7;
+        }
+
+        /* Knife handle detail */
+        .handle-detail {
+            position: absolute;
+            left: 2%;
+            top: 18%;
+            width: 12%;
+            height: 64%;
+            background: radial-gradient(ellipse at 30% 50%, #4a3725, #2b1f12);
+            border-radius: 6px;
+            box-shadow: inset 0 1px 2px rgba(255,240,180,0.2), 0 1px 2px black;
+        }
+
+        /* animation movement */
+        @keyframes slashPremium {
+            0% {
+                transform: translateX(-420px) translateY(-40px) rotate(-58deg);
+                opacity: 0;
+                filter: blur(3px);
+            }
+            15% {
+                opacity: 1;
+                filter: blur(0px);
+            }
+            50% {
+                transform: translateX(0px) translateY(5px) rotate(2deg);
+                opacity: 1;
+            }
+            85% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateX(420px) translateY(50px) rotate(48deg);
+                opacity: 0;
+                filter: blur(5px);
+            }
+        }
+
+        .animate-knife {
+            animation: slashPremium 1.1s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+        }
+
+        /* cutting effect classes */
+        .animate-cut .top {
+            transform: translateY(-42px) rotateX(5deg);
+        }
+        .animate-cut .bottom {
+            transform: translateY(42px) rotateX(-5deg);
+        }
+
+        /* text reveal premium */
+        .text-container {
+            margin-top: 48px;
+            text-align: center;
+            z-index: 15;
+            position: relative;
+        }
+
+        #text {
+            font-size: 2.4rem;
+            font-weight: 400;
+            letter-spacing: 5px;
+            background: linear-gradient(135deg, #e4c16b, #b67f2e, #f3de9c);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1.2s cubic-bezier(0.2, 0.9, 0.4, 1.2), transform 1.2s ease;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .text-show {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+
+        .sub {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            font-weight: 300;
+            color: rgba(212, 168, 47, 0.7);
+            margin-top: 6px;
+            font-family: 'Montserrat', sans-serif;
+            opacity: 0;
+            transition: opacity 0.6s 0.6s;
+        }
+
+        .text-show .sub {
+            opacity: 1;
+        }
+
+        /* glowing particles / sparks after cut */
+        .sparkle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 25;
+            overflow: visible;
+        }
+
+        .spark {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: radial-gradient(circle, #ffcf6e, #c47d2a);
+            border-radius: 50%;
+            opacity: 0;
+            filter: blur(0.5px);
+        }
+
+        /* marble tile floor reflection (abstract) */
+        .reflection {
+            position: absolute;
+            bottom: -70px;
+            width: 420px;
+            height: 60px;
+            background: radial-gradient(ellipse, rgba(40,30,20,0.2) 0%, transparent 70%);
+            filter: blur(14px);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        /* responsive adjustments */
+        @media (max-width: 600px) {
+            .scene { transform: scale(0.8); }
+            .text-container { margin-top: 20px; }
+            #text { font-size: 1.8rem; }
+        }
+
+        /* sizzle aura */
+        .sizzle-aura {
+            position: absolute;
+            width: 280px;
+            height: 190px;
+            background: radial-gradient(ellipse, rgba(230,130,30,0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            top: 35%;
+            left: 25%;
+            pointer-events: none;
+            filter: blur(12px);
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.3; transform: scale(0.98);}
+            100% { opacity: 0.7; transform: scale(1.05);}
+        }
+    </style>
+</head>
+<body>
+<div class="vignette"></div>
+<div class="grain"></div>
+
+<div class="scene">
+    <div class="plate">
+        <!-- subtle sizzling atmosphere -->
+        <div class="sizzle-aura"></div>
+        <div class="meat-container" id="meat">
+            <div class="meat-half top"></div>
+            <div class="meat-half bottom"></div>
+            <div class="juicy-glow"></div>
+        </div>
+        <div class="reflection"></div>
+    </div>
+    <div class="knife" id="knife">
+        <div class="handle-detail"></div>
+    </div>
+    <div class="sparkle-container" id="sparkContainer"></div>
+</div>
+
+<div class="text-container">
+    <div id="text">CERTIFIED WAGYU<br><span class="sub">— THE PERFECT CUT —</span></div>
+</div>
+
+<script>
+    (function() {
+        const knife = document.getElementById('knife');
+        const meatContainer = document.getElementById('meat');
+        const textEl = document.getElementById('text');
+        const sparkContainer = document.getElementById('sparkContainer');
+
+        // Function to generate premium spark particles at cutting moment
+        function createSparks(cutX = 180, cutY = 220) {
+            const sparkCount = 36;
+            const fragment = document.createDocumentFragment();
+            const rect = document.querySelector('.scene').getBoundingClientRect();
+            const sceneCenterX = rect.left + rect.width / 2;
+            const sceneCenterY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < sparkCount; i++) {
+                const spark = document.createElement('div');
+                spark.classList.add('spark');
+                // random offset relative to knife impact area (middle of steak)
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 12 + Math.random() * 35;
+                const dx = Math.cos(angle) * radius;
+                const dy = Math.sin(angle) * radius * 0.8;
+                const startX = sceneCenterX + dx - 10;
+                const startY = sceneCenterY + dy - 25;
+
+                spark.style.left = (startX - rect.left) + 'px';
+                spark.style.top = (startY - rect.top) + 'px';
+                spark.style.width = Math.random() * 5 + 2 + 'px';
+                spark.style.height = spark.style.width;
+                spark.style.opacity = '0.9';
+                spark.style.transform = `scale(${0.5 + Math.random() * 1})`;
+                spark.style.transition = 'all 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.2)';
+                fragment.appendChild(spark);
+                
+                // animate sparks outward
+                setTimeout(() => {
+                    const targetX = (Math.random() - 0.5) * 140;
+                    const targetY = (Math.random() - 0.5) * 110 - 40;
+                    spark.style.transform = `translate(${targetX}px, ${targetY}px) scale(0.2)`;
+                    spark.style.opacity = '0';
+                }, 15);
+            }
+            sparkContainer.appendChild(fragment);
+            
+            // remove sparks after animation
+            setTimeout(() => {
+                const allSparks = document.querySelectorAll('.spark');
+                allSparks.forEach(sp => sp.remove());
+            }, 1000);
+        }
+
+        // knife glint effect: add shine flash
+        function addKnifeFlash() {
+            const flashDiv = document.createElement('div');
+            flashDiv.style.position = 'absolute';
+            flashDiv.style.top = '40%';
+            flashDiv.style.left = '20%';
+            flashDiv.style.width = '280px';
+            flashDiv.style.height = '120px';
+            flashDiv.style.background = 'radial-gradient(ellipse at center, rgba(255,215,120,0.6) 0%, rgba(255,160,30,0) 80%)';
+            flashDiv.style.pointerEvents = 'none';
+            flashDiv.style.zIndex = '30';
+            flashDiv.style.borderRadius = '50%';
+            flashDiv.style.filter = 'blur(8px)';
+            flashDiv.style.transform = 'rotate(-15deg)';
+            flashDiv.style.opacity = '0';
+            document.querySelector('.scene').appendChild(flashDiv);
+            
+            setTimeout(() => { flashDiv.style.transition = 'opacity 0.2s ease-out'; flashDiv.style.opacity = '1'; }, 10);
+            setTimeout(() => { flashDiv.style.opacity = '0'; setTimeout(() => flashDiv.remove(), 300); }, 220);
+        }
+
+        // sound-like vibration effect (visual deep rumble)
+        function addMicroShake() {
+            const sceneElem = document.querySelector('.scene');
+            sceneElem.style.transition = 'transform 0.07s cubic-bezier(0.2, 1.6, 0.4, 1)';
+            sceneElem.style.transform = 'translateX(2px) rotate(0.5deg)';
+            setTimeout(() => { sceneElem.style.transform = 'translateX(-1px) rotate(-0.3deg)'; }, 40);
+            setTimeout(() => { sceneElem.style.transform = 'translateX(0px) rotate(0deg)'; }, 90);
+            setTimeout(() => { sceneElem.style.transition = ''; }, 150);
+        }
+
+        // start the premium animation sequence
+        function startCuttingSequence() {
+            // fade in knife and start animation
+            knife.style.opacity = '1';
+            knife.classList.add('animate-knife');
+            
+            // cutting sound effect emulation (no actual audio but we do visual feedback)
+            addKnifeFlash();
+            
+            // at the mid of cut approx 550ms later -> split the steak
+            setTimeout(() => {
+                meatContainer.classList.add('animate-cut');
+                addMicroShake();
+                // generate juicy spark particles for premium look
+                createSparks();
+                // second shimmer after separation
+                setTimeout(() => {
+                    const shine = document.createElement('div');
+                    shine.style.position = 'absolute';
+                    shine.style.width = '100%';
+                    shine.style.height = '100%';
+                    shine.style.background = 'radial-gradient(circle, rgba(255,200,80,0.2) 0%, transparent 90%)';
+                    shine.style.pointerEvents = 'none';
+                    shine.style.top = '0';
+                    shine.style.left = '0';
+                    meatContainer.appendChild(shine);
+                    setTimeout(() => shine.remove(), 500);
+                }, 70);
+            }, 520);
+            
+            // text reveal with elegant timing
+            setTimeout(() => {
+                textEl.classList.add('text-show');
+                // additional polish: add subtle glow to plate after cut
+                const plateGlow = document.createElement('div');
+                plateGlow.style.position = 'absolute';
+                plateGlow.style.inset = '0';
+                plateGlow.style.borderRadius = '50%';
+                plateGlow.style.boxShadow = 'inset 0 0 30px rgba(212,168,47,0.4), 0 0 20px rgba(212,168,47,0.2)';
+                plateGlow.style.pointerEvents = 'none';
+                document.querySelector('.plate').appendChild(plateGlow);
+                setTimeout(() => plateGlow.remove(), 1800);
+            }, 1000);
+        }
+
+        // initial visual entrance: gentle fadeIn for overall steak + knife delayed reveal
+        window.addEventListener('load', () => {
+            // start animation after premium delay (showing off the high-end presentation)
+            setTimeout(() => {
+                startCuttingSequence();
+            }, 900);
+            
+            // extra sparkle interaction: resting glow
+            const meat = document.querySelector('.meat-container');
+            meat.style.opacity = '1';
+            
+            // Add slight rotational bounce to steak before cut (elegant readiness)
+            meat.style.transition = 'transform 0.4s ease';
+            meat.style.transform = 'scale(1.01)';
+            setTimeout(() => { meat.style.transform = 'scale(1)'; }, 400);
+        });
+        
+        // optional: hovering reflection (polished effect)
+        const plateElem = document.querySelector('.plate');
+        plateElem.addEventListener('mousemove', (e) => {
+            if(meatContainer.classList.contains('animate-cut')) return;
+            const rect = plateElem.getBoundingClientRect();
+            const xAxis = (e.clientX - rect.left - rect.width/2) / 25;
+            const yAxis = (e.clientY - rect.top - rect.height/2) / 25;
+            meatContainer.style.transform = `perspective(600px) rotateY(${xAxis * 0.8}deg) rotateX(${yAxis * -0.5}deg)`;
+        });
+        plateElem.addEventListener('mouseleave', () => {
+            if(meatContainer.classList.contains('animate-cut')) return;
+            meatContainer.style.transform = 'perspective(600px) rotateY(0deg) rotateX(0deg)';
+        });
+        
+        // extra: after cut we keep the divide splitted with slight "wobble"
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mut) => {
+                if (mut.attributeName === 'class' && meatContainer.classList.contains('animate-cut')) {
+                    // add premium resting animation
+                    const topHalf = document.querySelector('.top');
+                    const bottomHalf = document.querySelector('.bottom');
+                    if (topHalf && bottomHalf) {
+                        topHalf.style.transition = 'transform 0.9s cubic-bezier(0.2, 1, 0.4, 1), filter 0.4s';
+                        bottomHalf.style.transition = 'transform 0.9s cubic-bezier(0.2, 1, 0.4, 1), filter 0.4s';
+                        // final subtle oscillation for realism
+                        setTimeout(() => {
+                            topHalf.style.transform = 'translateY(-44px)';
+                            bottomHalf.style.transform = 'translateY(44px)';
+                        }, 20);
+                        setTimeout(() => {
+                            topHalf.style.transform = 'translateY(-40px)';
+                            bottomHalf.style.transform = 'translateY(40px)';
+                        }, 180);
+                    }
+                    observer.disconnect();
+                }
+            });
+        });
+        observer.observe(meatContainer, { attributes: true });
+    })();
+</script>
+</body>
+</html>
