@@ -1,224 +1,838 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eid Mubarak</title>
-    <style>
-        * {
-            padding: 0;
-            margin: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eid Ul Adha - Final Celebration</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@400;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&family=MedievalSharp&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-        }
+  :root {
+    --deep-purple: #1a0533;
+    --purple: #2d0a52;
+    --mid-purple: #3d1268;
+    --gold: #d4a82f;
+    --gold-light: #f5d06e;
+    --gold-bright: #ffe084;
+    --gold-dark: #a07820;
+    --teal: #0d7a6b;
+    --navy: #0a2240;
+    --rose: #8b5463;
+  }
 
-        .container {
-            position: relative;
-            text-align: center;
-            z-index: 2;
-        }
+  body {
+    background: radial-gradient(ellipse at 50% 30%, #3d1268 0%, #2d0a52 35%, #1a0533 70%, #0d0020 100%);
+    min-height: 100vh;
+    font-family: 'Cinzel', serif;
+    overflow-x: hidden;
+    position: relative;
+  }
 
-        h1 {
-            font-size: 120px;
-            font-weight: 700;
-            background: linear-gradient(45deg, #fff, #ffd700, #ff69b4, #fff);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientShift 4s ease infinite, popIn 1s ease-out;
-            letter-spacing: 4px;
-            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-        }
+  /* ---- Stars ---- */
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle var(--d, 2s) ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.2; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
 
-        .emoji {
-            font-size: 80px;
-            animation: bounce 1.5s ease-in-out infinite;
-            display: block;
-            margin: 20px 0;
-        }
+  /* ---- Mosque silhouette ---- */
+  .mosque-bg {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 260px;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 260'%3E%3Cg fill='%23110228' opacity='0.9'%3E%3Crect x='0' y='180' width='1400' height='80'/%3E%3C!-- Left dome --%3E%3Cellipse cx='120' cy='180' rx='70' ry='50'/%3E%3Crect x='50' y='180' width='140' height='80'/%3E%3Crect x='105' y='120' width='30' height='60'/%3E%3Cellipse cx='120' cy='120' rx='15' ry='22'/%3E%3Crect x='86' y='168' width='8' height='30'/%3E%3Crect x='146' y='168' width='8' height='30'/%3E%3C!-- Center big dome --%3E%3Cellipse cx='700' cy='150' rx='130' ry='95'/%3E%3Crect x='570' y='150' width='260' height='110'/%3E%3Crect x='680' y='60' width='40' height='90'/%3E%3Cellipse cx='700' cy='60' rx='20' ry='30'/%3E%3Crect x='610' y='138' width='12' height='50'/%3E%3Crect x='778' y='138' width='12' height='50'/%3E%3C!-- Left mid dome --%3E%3Cellipse cx='380' cy='185' rx='85' ry='60'/%3E%3Crect x='295' y='185' width='170' height='75'/%3E%3Crect x='362' y='130' width='36' height='55'/%3E%3Cellipse cx='380' cy='130' rx='18' ry='26'/%3E%3C!-- Right mid dome --%3E%3Cellipse cx='1020' cy='185' rx='85' ry='60'/%3E%3Crect x='935' y='185' width='170' height='75'/%3E%3Crect x='1002' y='130' width='36' height='55'/%3E%3Cellipse cx='1020' cy='130' rx='18' ry='26'/%3E%3C!-- Right dome --%3E%3Cellipse cx='1280' cy='180' rx='70' ry='50'/%3E%3Crect x='1210' y='180' width='140' height='80'/%3E%3Crect x='1265' y='120' width='30' height='60'/%3E%3Cellipse cx='1280' cy='120' rx='15' ry='22'/%3E%3C/g%3E%3C/svg%3E") bottom/cover no-repeat;
+    z-index: 0;
+    opacity: 0.85;
+  }
 
-        .emoji:nth-child(1) {
-            animation-delay: 0s;
-        }
+  /* ---- Gold frame corners ---- */
+  .outer-frame {
+    position: fixed; inset: 12px;
+    border: 2.5px solid var(--gold);
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: inset 0 0 60px rgba(212,168,47,0.08), 0 0 40px rgba(212,168,47,0.12);
+  }
+  .outer-frame::before, .outer-frame::after {
+    content: '';
+    position: absolute;
+    width: 60px; height: 60px;
+    border-color: var(--gold-bright);
+    border-style: solid;
+  }
+  .outer-frame::before { top: -4px; left: -4px; border-width: 4px 0 0 4px; }
+  .outer-frame::after  { bottom: -4px; right: -4px; border-width: 0 4px 4px 0; }
 
-        .emoji:nth-child(3) {
-            animation-delay: 0.2s;
-        }
+  .corner { position: fixed; width: 60px; height: 60px; z-index: 2; pointer-events: none; }
+  .corner svg { width: 100%; height: 100%; }
+  .corner-tl { top: 8px; left: 8px; }
+  .corner-tr { top: 8px; right: 8px; transform: scaleX(-1); }
+  .corner-bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+  .corner-br { bottom: 8px; right: 8px; transform: scale(-1,-1); }
 
-        .subtitle {
-            color: white;
-            font-size: 28px;
-            margin-top: 30px;
-            animation: fadeInUp 1s ease-out 0.5s both;
-            font-weight: 300;
-            letter-spacing: 2px;
-        }
+  /* ---- Lanterns ---- */
+  .lanterns { position: fixed; top: 0; width: 100%; pointer-events: none; z-index: 2; }
+  .lantern {
+    position: absolute; top: 0;
+    display: flex; flex-direction: column; align-items: center;
+    animation: sway var(--sw, 3s) ease-in-out infinite alternate;
+    transform-origin: top center;
+  }
+  @keyframes sway { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+  .lantern-rope { width: 2px; background: linear-gradient(var(--gold-dark), var(--gold)); height: var(--rh, 60px); }
+  .lantern-body {
+    width: var(--lw, 34px); height: var(--lh, 48px);
+    background: radial-gradient(ellipse at 40% 30%, #ffe580, #e8a000 60%, #a06000);
+    border-radius: 6px 6px 10px 10px;
+    border: 1.5px solid var(--gold);
+    box-shadow: 0 0 20px 6px rgba(255,200,50,0.55), 0 0 60px 15px rgba(255,160,0,0.25);
+    position: relative;
+    animation: flicker 1.5s ease-in-out infinite alternate;
+  }
+  @keyframes flicker { from { box-shadow: 0 0 18px 5px rgba(255,200,50,0.5), 0 0 50px 12px rgba(255,160,0,0.2); } to { box-shadow: 0 0 28px 9px rgba(255,220,80,0.7), 0 0 80px 20px rgba(255,180,0,0.35); } }
+  .lantern-top { width: calc(var(--lw, 34px) + 8px); height: 8px; background: var(--gold); border-radius: 3px; }
+  .lantern-bot { width: calc(var(--lw, 34px) - 6px); height: 6px; background: var(--gold-dark); border-radius: 0 0 4px 4px; }
+  .lantern-tassel { width: 2px; height: 14px; background: var(--gold); margin: 0 auto; }
 
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            pointer-events: none;
-            z-index: 1;
-        }
+  /* ---- Main layout ---- */
+  .container {
+    position: relative; z-index: 3;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 20px 40px;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px;
+  }
 
-        @keyframes popIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.5) rotateY(-180deg);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) rotateY(0deg);
-            }
-        }
+  /* ---- Header ---- */
+  .sub-title {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--gold-light);
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(212,168,47,0.8);
+    margin-bottom: 2px;
+  }
+  .main-title {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(28px, 5vw, 46px);
+    color: var(--gold-bright);
+    text-shadow: 0 0 30px rgba(255,224,132,0.8), 0 2px 4px rgba(0,0,0,0.5);
+    text-align: center;
+    line-height: 1.2;
+  }
 
-        @keyframes gradientShift {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
+  /* ---- Cards row ---- */
+  .cards-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0px;
+    width: 100%;
+    margin-top: 10px;
+    position: relative;
+  }
 
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-30px);
-            }
-        }
+  .arrow {
+    color: var(--gold-bright);
+    font-size: 28px;
+    text-shadow: 0 0 10px var(--gold);
+    animation: pulse-arrow 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+    margin: 0 -8px;
+    z-index: 4;
+  }
+  @keyframes pulse-arrow {
+    0%,100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+  /* magic trail arrow between center cards */
+  .magic-trail {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+    border-radius: 2px;
+    animation: trail-glow 1.8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+  }
+  @keyframes trail-glow {
+    0%,100% { opacity: 0; width: 60px; }
+    50% { opacity: 1; width: 120px; }
+  }
 
-        @keyframes fall {
-            to {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
+  /* ---- Card ---- */
+  .card {
+    width: 200px;
+    border-radius: 16px;
+    padding: 4px;
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card.zoomed-in {
+    animation: card-zoom-in 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  @keyframes card-zoom-in {
+    0%   { opacity: 0; transform: scale(0.3) rotate(-4deg); }
+    60%  { opacity: 1; transform: scale(1.08) rotate(1deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  .card.zoomed-in:hover { transform: translateY(-8px) scale(1.03); }
 
-        .stars {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-        }
+  .card-inner {
+    border-radius: 13px;
+    padding: 18px 14px 20px;
+    height: 280px;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    border: 2px solid var(--gold);
+    position: relative;
+    overflow: hidden;
+  }
 
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-        }
+  /* Card colors */
+  .card-navy .card-inner { background: linear-gradient(160deg, #0d2a4a 0%, #0a1e35 50%, #061428 100%); }
+  .card-teal .card-inner { background: linear-gradient(160deg, #0d7a6b 0%, #095e52 50%, #063d36 100%); }
+  .card-rose .card-inner { background: linear-gradient(160deg, #8b5463 0%, #6e3e4e 50%, #4a2835 100%); }
 
-        @keyframes twinkle {
-            0%, 100% {
-                opacity: 0.3;
-            }
-            50% {
-                opacity: 1;
-            }
-        }
+  /* Gold border glow */
+  .card-navy { background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light), var(--gold)); box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 20px rgba(212,168,47,0.3); }
+  .card-teal { background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light), var(--gold)); box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 20px rgba(212,168,47,0.3); }
+  .card-rose { background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light), var(--gold)); box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 20px rgba(212,168,47,0.3); }
 
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 60px;
-                letter-spacing: 2px;
-            }
+  /* Geometric frame inside card */
+  .card-frame {
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(212,168,47,0.4);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  .card-frame::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(212,168,47,0.2);
+    border-radius: 5px;
+  }
 
-            .emoji {
-                font-size: 50px;
-            }
+  /* Arch top decoration */
+  .card-arch {
+    width: 80px; height: 55px;
+    border: 2px solid var(--gold);
+    border-bottom: none;
+    border-radius: 40px 40px 0 0;
+    position: absolute;
+    top: 12px;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 6px;
+  }
+  .card-arch::after {
+    content: '☽';
+    color: var(--gold-bright);
+    font-size: 18px;
+    text-shadow: 0 0 8px var(--gold);
+  }
 
-            .subtitle {
-                font-size: 18px;
-                letter-spacing: 1px;
-            }
-        }
-    </style>
+  /* Corner decorations on card */
+  .card-corner {
+    position: absolute;
+    width: 16px; height: 16px;
+    border-color: var(--gold);
+    border-style: solid;
+    opacity: 0.7;
+  }
+  .card-corner.tl { top: 10px; left: 10px; border-width: 2px 0 0 2px; }
+  .card-corner.tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
+  .card-corner.bl { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; }
+  .card-corner.br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+
+  .card-lanterns {
+    display: flex; gap: 28px;
+    margin-top: 62px;
+  }
+  .mini-lantern {
+    width: 12px; height: 18px;
+    background: radial-gradient(ellipse at 40% 30%, #ffe580, #e8a000 70%);
+    border-radius: 3px 3px 6px 6px;
+    border: 1px solid var(--gold);
+    box-shadow: 0 0 6px 2px rgba(255,200,50,0.5);
+    position: relative;
+  }
+  .mini-lantern::before {
+    content: '';
+    position: absolute;
+    top: -8px; left: 50%; transform: translateX(-50%);
+    width: 1px; height: 8px;
+    background: var(--gold);
+  }
+
+  .arabic-text {
+    font-family: 'Amiri', serif;
+    font-size: 28px;
+    color: var(--gold-bright);
+    text-shadow: 0 0 15px rgba(255,224,132,0.7);
+    direction: rtl;
+    text-align: center;
+    margin-top: -8px;
+  }
+
+  .eid-mubarak-en {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    color: var(--gold-light);
+    text-align: center;
+    margin-top: -2px;
+  }
+
+  .divider {
+    width: 70%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 2px 0;
+  }
+
+  .name-arabic {
+    font-family: 'Amiri', serif;
+    font-size: 12px;
+    color: var(--gold-light);
+    direction: rtl;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .name-english {
+    font-family: 'Cinzel', serif;
+    font-size: 8.5px;
+    color: var(--gold-bright);
+    text-align: center;
+    letter-spacing: 0.5px;
+    margin-top: 1px;
+  }
+
+  /* Sparkles on card */
+  .card-sparkle {
+    position: absolute;
+    color: var(--gold-bright);
+    font-size: 10px;
+    animation: sparkle-fade var(--sd, 2s) ease-in-out infinite;
+  }
+  @keyframes sparkle-fade {
+    0%,100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* ---- Button ---- */
+  .btn-wrapper {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    margin-top: 8px;
+    position: relative;
+  }
+  .btn-celebrate {
+    background: linear-gradient(135deg, #c9930a, #e8b820, #f5d06e, #e8b820, #c9930a);
+    border: none;
+    border-radius: 30px;
+    padding: 14px 42px;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #1a0533;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 25px rgba(212,168,47,0.5), 0 0 0 2px var(--gold-dark), inset 0 1px 0 rgba(255,255,255,0.3);
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+  }
+  .btn-celebrate::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 33px;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold-dark), var(--gold-bright));
+    z-index: -1;
+    opacity: 0.6;
+  }
+  .btn-celebrate:hover { transform: scale(1.05); box-shadow: 0 6px 35px rgba(212,168,47,0.7), 0 0 0 2px var(--gold); }
+  .btn-celebrate:active { transform: scale(0.97); }
+  .btn-celebrate .moon-icon { margin-left: 6px; font-size: 16px; }
+
+  .cursor-icon {
+    position: absolute;
+    right: -30px; bottom: -8px;
+    font-size: 24px;
+    animation: cursor-bob 1s ease-in-out infinite alternate;
+    color: white;
+  }
+  @keyframes cursor-bob { from { transform: rotate(-10deg) translate(0,0); } to { transform: rotate(-10deg) translate(2px,3px); } }
+
+  .welcome-text {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: rgba(212,168,47,0.85);
+    text-align: center;
+  }
+
+  /* ---- Fireworks canvas ---- */
+  #fireworks-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* ---- Celebration overlay ---- */
+  .celebrate-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10,0,30,0.0);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  .celebrate-overlay.show {
+    pointer-events: all;
+    opacity: 1;
+  }
+  .celebrate-card {
+    background: radial-gradient(ellipse at 50% 30%, #3d1268 0%, #2d0a52 60%, #1a0533 100%);
+    border: 3px solid var(--gold);
+    border-radius: 20px;
+    padding: 40px 60px;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(212,168,47,0.5), inset 0 0 40px rgba(212,168,47,0.08);
+    animation: celebrate-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    position: relative;
+  }
+  @keyframes celebrate-pop {
+    from { transform: scale(0.4) rotate(-5deg); opacity: 0; }
+    to { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .celebrate-card .big-arabic {
+    font-family: 'Amiri', serif;
+    font-size: 52px;
+    color: var(--gold-bright);
+    text-shadow: 0 0 30px rgba(255,224,132,0.8);
+    direction: rtl;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .celebrate-card .big-en {
+    font-family: 'Great Vibes', cursive;
+    font-size: 42px;
+    color: var(--gold-light);
+    text-shadow: 0 0 20px rgba(212,168,47,0.6);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .celebrate-card .sub-msg {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(212,168,47,0.8);
+  }
+  .close-btn {
+    position: absolute; top: 12px; right: 16px;
+    background: none; border: none;
+    color: var(--gold-light); font-size: 20px;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+  .close-btn:hover { opacity: 1; }
+
+  .crescent-decor {
+    font-size: 36px;
+    display: block;
+    margin: 8px 0;
+    animation: spin-slow 6s linear infinite;
+    color: var(--gold-bright);
+    text-shadow: 0 0 20px var(--gold);
+  }
+  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
-    <div class="stars" id="stars"></div>
 
-    <div class="container">
-        <div class="emoji">🌙</div>
-        <h1>Eid Mubarak</h1>
-        <div class="emoji">🎉</div>
-        <p class="subtitle">Wishing you joy and blessings</p>
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- Mosque bg -->
+<div class="mosque-bg"></div>
+
+<!-- Outer gold frame -->
+<div class="outer-frame"></div>
+
+<!-- Corner ornaments -->
+<div class="corner corner-tl">
+  <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 5 L55 5 M5 5 L5 55" stroke="#d4a82f" stroke-width="2.5"/>
+    <path d="M5 5 L25 25" stroke="#d4a82f" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="5" cy="5" r="5" fill="#d4a82f"/>
+    <circle cx="30" cy="5" r="3" fill="#f5d06e" opacity="0.7"/>
+    <circle cx="5" cy="30" r="3" fill="#f5d06e" opacity="0.7"/>
+    <path d="M15 5 Q20 10 25 5" stroke="#ffe084" stroke-width="1.2" fill="none" opacity="0.8"/>
+    <path d="M5 15 Q10 20 5 25" stroke="#ffe084" stroke-width="1.2" fill="none" opacity="0.8"/>
+  </svg>
+</div>
+<div class="corner corner-tr">
+  <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 5 L55 5 M5 5 L5 55" stroke="#d4a82f" stroke-width="2.5"/>
+    <path d="M5 5 L25 25" stroke="#d4a82f" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="5" cy="5" r="5" fill="#d4a82f"/>
+    <circle cx="30" cy="5" r="3" fill="#f5d06e" opacity="0.7"/>
+    <circle cx="5" cy="30" r="3" fill="#f5d06e" opacity="0.7"/>
+  </svg>
+</div>
+<div class="corner corner-bl">
+  <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 5 L55 5 M5 5 L5 55" stroke="#d4a82f" stroke-width="2.5"/>
+    <path d="M5 5 L25 25" stroke="#d4a82f" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="5" cy="5" r="5" fill="#d4a82f"/>
+    <circle cx="30" cy="5" r="3" fill="#f5d06e" opacity="0.7"/>
+    <circle cx="5" cy="30" r="3" fill="#f5d06e" opacity="0.7"/>
+  </svg>
+</div>
+<div class="corner corner-br">
+  <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 5 L55 5 M5 5 L5 55" stroke="#d4a82f" stroke-width="2.5"/>
+    <path d="M5 5 L25 25" stroke="#d4a82f" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="5" cy="5" r="5" fill="#d4a82f"/>
+    <circle cx="30" cy="5" r="3" fill="#f5d06e" opacity="0.7"/>
+    <circle cx="5" cy="30" r="3" fill="#f5d06e" opacity="0.7"/>
+  </svg>
+</div>
+
+<!-- Lanterns -->
+<div class="lanterns" id="lanterns"></div>
+
+<!-- Fireworks canvas -->
+<canvas id="fireworks-canvas"></canvas>
+
+<!-- Celebration overlay -->
+<div class="celebrate-overlay" id="celebrateOverlay">
+  <div class="celebrate-card">
+    <button class="close-btn" onclick="closeCelebration()">✕</button>
+    <span class="big-arabic">عيد مبارك</span>
+    <span class="big-en">Eid Mubarak!</span>
+    <span class="crescent-decor">✦</span>
+    <p class="sub-msg">May Allah bless you with joy, peace & prosperity</p>
+    <p class="sub-msg" style="margin-top:6px; color: rgba(212,168,47,0.6);">Morsheda · Tahia · Nipa</p>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="container">
+  <p class="sub-title">Eid Ul Adha - Final Celebration</p>
+  <h1 class="main-title">Welcome To Our Special Greeting</h1>
+
+  <!-- Cards -->
+  <div class="cards-row">
+
+    <!-- Arrow left -->
+    <span class="arrow" style="margin-right:4px;">↖</span>
+
+    <!-- Card 1: Navy -->
+    <div class="card card-navy">
+      <div class="card-inner">
+        <div class="card-frame"></div>
+        <div class="card-corner tl"></div>
+        <div class="card-corner tr"></div>
+        <div class="card-corner bl"></div>
+        <div class="card-corner br"></div>
+        <div class="card-arch"></div>
+        <div class="card-lanterns">
+          <div class="mini-lantern"></div>
+          <div class="mini-lantern" style="animation-delay:0.3s"></div>
+        </div>
+        <div class="arabic-text">عيد مبارك</div>
+        <div class="eid-mubarak-en">EID MUBARAK</div>
+        <div class="divider"></div>
+        <div class="name-arabic">مرشدة ياسمين لوبا</div>
+        <div class="name-english">Morsheda Yeasmin Lopa</div>
+        <span class="card-sparkle" style="top:55px;left:14px;--sd:1.8s">✦</span>
+        <span class="card-sparkle" style="top:72px;right:12px;--sd:2.4s">✧</span>
+        <span class="card-sparkle" style="bottom:28px;right:18px;--sd:2.1s;font-size:7px">★</span>
+      </div>
     </div>
-    <audio autoplay >
-        <source src="Eid Takbeer - Allahu Akbar Kabira (1)_[cut_23sec].mp3" type="audio/mpeg">
-    </audio>
-    <script>
-        // Create twinkling stars
-        const starsContainer = document.getElementById('stars');
-        for (let i = 0; i < 100; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.animationDelay = Math.random() * 3 + 's';
-            starsContainer.appendChild(star);
-        }
 
-        // Create confetti
-        function createConfetti() {
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.top = '-10px';
-                confetti.style.backgroundColor = ['#ffd700', '#ff69b4', '#00bcd4', '#fff'][Math.floor(Math.random() * 4)];
-                confetti.style.animation = `fall ${2 + Math.random() * 2}s linear`;
-                document.body.appendChild(confetti);
+    <!-- Arrow middle -->
+    <span class="arrow" style="color:#ffe084; font-size:20px; margin: 0 -4px; margin-bottom:-60px;">→</span>
 
-                setTimeout(() => confetti.remove(), 4000);
-            }
-        }
+    <!-- Card 2: Teal (center) -->
+    <div class="card card-teal" style="z-index:5;">
+      <div class="card-inner">
+        <div class="card-frame"></div>
+        <div class="card-corner tl"></div>
+        <div class="card-corner tr"></div>
+        <div class="card-corner bl"></div>
+        <div class="card-corner br"></div>
+        <div class="card-arch"></div>
+        <div class="card-lanterns">
+          <div class="mini-lantern"></div>
+          <div class="mini-lantern" style="animation-delay:0.4s"></div>
+        </div>
+        <div class="arabic-text">عيد مبارك</div>
+        <div class="eid-mubarak-en">EID MUBARAK</div>
+        <div class="divider"></div>
+        <div class="name-arabic">طاهية ياسمين</div>
+        <div class="name-english">Tahia Yeasmin</div>
+        <span class="card-sparkle" style="top:58px;left:16px;--sd:2s">✦</span>
+        <span class="card-sparkle" style="top:75px;right:14px;--sd:1.6s">✧</span>
+        <span class="card-sparkle" style="bottom:30px;left:20px;--sd:2.6s;font-size:8px">★</span>
+        <span class="card-sparkle" style="bottom:50px;right:16px;--sd:1.9s;font-size:7px">✦</span>
+      </div>
+    </div>
 
-        // Create confetti on load and periodically
-        createConfetti();
-        setInterval(createConfetti, 1000);
+    <!-- Arrow right -->
+    <span class="arrow" style="font-size:20px; margin: 0 -4px; margin-bottom:-60px;">→</span>
 
-        // Voice countdown
-        
-        // Countdown with voice - starts immediately on page load
-        setTimeout(() => speakNumber(3), 300);
-        setTimeout(() => speakNumber(2), 1300);
-        setTimeout(() => speakNumber(1), 2300);
+    <!-- Card 3: Rose -->
+    <div class="card card-rose">
+      <div class="card-inner">
+        <div class="card-frame"></div>
+        <div class="card-corner tl"></div>
+        <div class="card-corner tr"></div>
+        <div class="card-corner bl"></div>
+        <div class="card-corner br"></div>
+        <div class="card-arch"></div>
+        <div class="card-lanterns">
+          <div class="mini-lantern"></div>
+          <div class="mini-lantern" style="animation-delay:0.5s"></div>
+        </div>
+        <div class="arabic-text">عيد مبارك</div>
+        <div class="eid-mubarak-en">EID MUBARAK</div>
+        <div class="divider"></div>
+        <div class="name-arabic">شاهيدة ياسمين نيبا</div>
+        <div class="name-english">Shahida Yeasmin Nipa</div>
+        <span class="card-sparkle" style="top:55px;right:14px;--sd:2.2s">✦</span>
+        <span class="card-sparkle" style="top:73px;left:12px;--sd:1.7s">✧</span>
+        <span class="card-sparkle" style="bottom:28px;left:18px;--sd:2.5s;font-size:7px">★</span>
+      </div>
+    </div>
 
-        // Redirect after 23.0 seconds
-        setTimeout(function() {
-            window.location.href = "home.html";
-         }, 23000);
-    </script>
+  </div>
+
+  <!-- Button -->
+  <div class="btn-wrapper">
+    <button class="btn-celebrate" onclick="startCelebration()">
+      START CELEBRATION <span class="moon-icon">🌙</span>
+    </button>
+    <span class="cursor-icon">🖱️</span>
+    <p class="welcome-text">Welcome Morsheda, Tahia &amp; Nipa!</p>
+  </div>
+</div>
+
+<script>
+// ---- Sequential card zoom-in ----
+window.addEventListener('load', () => {
+  const cards = document.querySelectorAll('.card');
+  cards.forEach((card, i) => {
+    setTimeout(() => {
+      card.classList.add('zoomed-in');
+    }, 400 + i * 600);
+  });
+
+  // Auto-trigger after 5 seconds
+  setTimeout(() => {
+    startCelebration();
+  }, 5000);
+});
+
+// ---- Generate stars ----
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 120; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 2.5 + 0.5;
+  s.style.cssText = `
+    left:${Math.random()*100}%;
+    top:${Math.random()*100}%;
+    width:${size}px; height:${size}px;
+    --d:${1.5 + Math.random()*3}s;
+    animation-delay:${Math.random()*3}s;
+  `;
+  starsEl.appendChild(s);
+}
+
+// ---- Generate lanterns ----
+const lanternData = [
+  { left: '3%',  rh: 55, lw: 28, lh: 42, sw: 2.5 },
+  { left: '12%', rh: 75, lw: 34, lh: 50, sw: 3.2 },
+  { left: '22%', rh: 45, lw: 24, lh: 36, sw: 2.8 },
+  { left: '78%', rh: 48, lw: 24, lh: 36, sw: 3.1 },
+  { left: '88%', rh: 70, lw: 34, lh: 50, sw: 2.6 },
+  { left: '97%', rh: 58, lw: 28, lh: 42, sw: 2.9 },
+];
+const lanternsEl = document.getElementById('lanterns');
+lanternData.forEach((l, i) => {
+  lanternsEl.innerHTML += `
+    <div class="lantern" style="left:${l.left}; --rh:${l.rh}px; --lw:${l.lw}px; --lh:${l.lh}px; --sw:${l.sw}s; animation-delay:${i*0.4}s;">
+      <div class="lantern-top"></div>
+      <div class="lantern-rope"></div>
+      <div class="lantern-body"></div>
+      <div class="lantern-bot"></div>
+      <div class="lantern-tassel"></div>
+    </div>`;
+});
+
+// ---- Fireworks ----
+const canvas = document.getElementById('fireworks-canvas');
+const ctx = canvas.getContext('2d');
+let animId = null;
+let particles = [];
+let active = false;
+let duration = 0;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const COLORS = [
+  '#ffe084','#f5d06e','#d4a82f','#ff6b6b','#ff9ff3',
+  '#54a0ff','#5f27cd','#00d2d3','#ff9f43','#48dbfb',
+  '#ffd700','#ffffff','#c0ffd8','#ffb8b8','#e8a000'
+];
+
+function createBurst(x, y, count = 60) {
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 / count) * i + Math.random() * 0.3;
+    const speed = 2 + Math.random() * 5;
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      alpha: 1,
+      size: 2 + Math.random() * 3,
+      color,
+      trail: [],
+      gravity: 0.06 + Math.random() * 0.04,
+      decay: 0.015 + Math.random() * 0.01,
+      type: Math.random() > 0.7 ? 'star' : 'dot'
+    });
+  }
+}
+
+function drawStar(x, y, r, color, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const a = (i * 4 * Math.PI / 5) - Math.PI / 2;
+    const ai = (i * 4 * Math.PI / 5) - Math.PI / 2 + Math.PI / 5;
+    if (i === 0) ctx.moveTo(x + r * Math.cos(a), y + r * Math.sin(a));
+    else ctx.lineTo(x + r * Math.cos(a), y + r * Math.sin(a));
+    ctx.lineTo(x + r * 0.4 * Math.cos(ai), y + r * 0.4 * Math.sin(ai));
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function loop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach((p, i) => {
+    p.trail.push({ x: p.x, y: p.y });
+    if (p.trail.length > 6) p.trail.shift();
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += p.gravity;
+    p.vx *= 0.98;
+    p.alpha -= p.decay;
+    // Trail
+    p.trail.forEach((t, ti) => {
+      const ta = (ti / p.trail.length) * p.alpha * 0.5;
+      ctx.globalAlpha = ta;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, p.size * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    // Main particle
+    if (p.type === 'star') drawStar(p.x, p.y, p.size * 1.5, p.color, p.alpha);
+    else {
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+  ctx.globalAlpha = 1;
+  particles = particles.filter(p => p.alpha > 0);
+  if (active) {
+    duration--;
+    if (duration > 0 && Math.random() > 0.5) {
+      const x = 80 + Math.random() * (canvas.width - 160);
+      const y = 60 + Math.random() * (canvas.height * 0.55);
+      const count = 40 + Math.floor(Math.random() * 40);
+      createBurst(x, y, count);
+    }
+  }
+  if (particles.length > 0 || active) {
+    animId = requestAnimationFrame(loop);
+  } else {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    animId = null;
+  }
+}
+
+function startCelebration() {
+  // Fireworks
+  active = true;
+  duration = 90;
+  particles = [];
+  // Initial big bursts
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      createBurst(
+        100 + Math.random() * (canvas.width - 200),
+        80 + Math.random() * 200,
+        70
+      );
+    }, i * 200);
+  }
+  if (!animId) loop();
+  // Show overlay after short delay
+  setTimeout(() => {
+    document.getElementById('celebrateOverlay').classList.add('show');
+    active = false;
+  }, 800);
+}
+
+function closeCelebration() {
+  document.getElementById('celebrateOverlay').classList.remove('show');
+  active = false;
+}
+
+// Redirects to the destination URL after 3 seconds (3000 milliseconds)
+setTimeout(function() {
+    window.location.href = "wow.html";
+}, 10000);
+
+</script>
 </body>
 </html>
